@@ -6,7 +6,7 @@ var SBASE = 'sheets';
 var DFRAMES = [[0, 1, 0, 4, 5], [7, 8, 9, 11, 12], [0, 1, 0, 4, 5], [14, 15, 16, 18, 19]];
 var DKEYS = [68, 83, 65, 87]; // dsaw
 
-var CLASSES = 'Rogue Archer Wizard Priest Warrior Knight Paladin Assassin Necromancer Huntress Mystic Trickster Sorcerer'.split(' ');
+var CLASSES = 'Rogue Archer Wizard Priest Warrior Knight Paladin Assassin Necromancer Huntress Mystic Trickster Sorcerer Ninja'.split(' ');
 var REALDYES = 'black blue brown fuchsia gray green maroon olive orange pink purple red salmon silver tan teal turquoise white yellow beige thistle sienna orchid plum'.split(' ');
 
 var ready = false;
