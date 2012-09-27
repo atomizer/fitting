@@ -18,7 +18,7 @@ var tx = [-1, -1];
 var sc = 0;
 
 BLUSH_PERIOD = 600
-WALK_PERIOD = 400
+WALK_PERIOD = 300
 var walking = false, attacking = false, blushing = false;
 var d_wstart = new Date, d_bstart = d_wstart;
 var r_down = false;
@@ -153,7 +153,10 @@ function p_set(s, x, y, d) {
 	for (var i = 0; i < 4; i++) s.data[offset + i] = d[i];
 }
 
+var ftimer
+
 function frame(id, scale) {
+	ftimer = 1
 	var cur_frame = 0, blush = 0;
 	
 	if (walking || attacking) {
@@ -256,7 +259,11 @@ function frame(id, scale) {
 	c.drawImage(stage, 0, 0);
 	c.restore(); */
 	
-	if (walking || blushing) requestAnimFrame(function() {frame() });
+	if (walking || blushing) {
+		requestAnimFrame(function() {frame() });
+	} else {
+		ftimer = 0
+	}
 }
 
 
@@ -329,7 +336,7 @@ function init_stage() {
 		cur_dir = dir;
 		walking = true;
 		attacking = e.shiftKey;
-		frame();
+		if (!ftimer) frame();
 	})
 	.keyup(function(e){
 		e.preventDefault();
