@@ -1,0 +1,70 @@
+body {
+	background: #777;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+
+#main {
+	width: 700px;
+	background: #bbb;
+	text-align: left;
+	padding: 0;
+}
+
+#clsel {
+	font: bold 12px Arial,sans-serif;
+	margin: 10px 0;
+	width: 500px;
+}
+
+#clsel div {
+	display: inline-block;
+	cursor: pointer;
+	padding: 5px;
+	margin: 1px;
+	background: #ddd;
+}
+
+#stagebox {
+	text-align: center;
+}
+
+#stage, #dyebox, #main, #clsel {
+	display: inline-block;
+}
+
+#stage {
+	border: 2px solid #777;
+	vertical-align: top;
+	margin-right: 40px;
+}
+
+#dyebox {
+	text-align: left;
+	background-color: #333;
+	width: 400px;
+	line-height: 0;
+	padding: 3px;
+}
+
+#dyebox .dye {
+	width: 34px;
+	height: 34px;
+	display: inline-block;
+	margin: 3px;
+	background-repeat: repeat;
+	cursor: pointer;
+	position: relative;
+}
+
+#ind0, #ind1 {
+	font: bold 12px Arial,sans-serif;
+	position: absolute;
+	color: white;
+	text-shadow: -1px 0 1px black, 0 1px 1px black, 1px 0 1px black, 0 -1px 1px black;
+}
+
+#ind0 { left: 2px; }
+#ind1 { right: 2px; }
+
