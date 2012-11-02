@@ -194,7 +194,7 @@ var dyes = [
 ['Wind Cloth', 10, 29],
 // build 122.2
 // ['Shamrock Cloth', 9, 9],
-// ["St Patrick's Green Clothing Dye", 1, '#00cf00'],
+// ['St Patrick's Green Clothing Dye', 1, '#00cf00'],
 // build 123.3.2
 ['Bright Stripes Cloth', 10, 30],
 ['USA Flag Cloth', 10, 31],
@@ -214,4 +214,8 @@ var dyes = [
 ['USA Star Cloth', 9, 12],
 ['Purple Stripes Cloth', 5, 5],
 ['Bright Floral Cloth', 5, 6],
+// 4.0
+['Clanranald Cloth', 10, 43],
+['American Flag Cloth', 10, 44],
+['Relief Cloth', 9, 13],
 ]
