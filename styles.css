@@ -12,25 +12,46 @@ body {
 	padding: 0;
 }
 
-#clsel {
+.sel {
+	text-align: left;
 	font: bold 12px Arial,sans-serif;
-	margin: 10px 0;
-	width: 500px;
+	margin: 10px 5px;
+	vertical-align: top;
 }
 
-#clsel div {
+#clsel {
+	width: 470px;
+}
+
+#skinsel {
+	width: 124px;
+}
+
+.sel div {
+	text-align: center;
 	display: inline-block;
 	cursor: pointer;
-	padding: 5px;
-	margin: 1px;
+	padding: 3px 0;
+	margin: 2px;
 	background: #ddd;
+	width: 90px;
+}
+
+#skinsel div { width: 120px; }
+
+.sel .selected {
+	outline: 3px solid #777;
+}
+
+.sel div:hover {
+	background: #eee;
 }
 
 #stagebox {
 	text-align: center;
 }
 
-#stage, #dyebox, #main, #clsel {
+#stage, #dyebox, #main, #clsel, #skinsel {
 	display: inline-block;
 }
 
@@ -67,4 +88,14 @@ body {
 
 #ind0 { left: 2px; }
 #ind1 { right: 2px; }
+
+hr {
+	border: 1px solid #777;
+	margin: 10px 4px;
+}
+
+.err {
+	font: bold 14px sans-serif;
+	margin: 20px;
+}
 

@@ -1,19 +1,61 @@
 /* by atomizer */
 
-var SNAMES = ['players', 'players_mask', 4, 5, 9, 10];
+var SNAMES = ['players', 'playersMask', 'playersSkins', 'playersSkinsMask', 4, 5, 9, 10];
 var SBASE = 'sheets';
 
 var DFRAMES = [[0, 1, 0, 4, 5], [7, 8, 9, 11, 12], [0, 1, 0, 4, 5], [14, 15, 16, 18, 19]];
 var DKEYS = [68, 83, 65, 87]; // dsaw
 
-var CLASSES = 'Rogue Archer Wizard Priest Warrior Knight Paladin Assassin Necromancer Huntress Mystic Trickster Sorcerer Ninja'.split(' ');
-var REALDYES = 'black,blue,brown,fuchsia,gray,green,maroon,olive,orange,pink,purple,red,salmon,silver,tan,teal,turquoise,white,yellow,beige,thistle,sienna,orchid,plum,royal blue'.split(',');
+var CLASSES = {
+0x0300: ['Rogue', 0, ['Rough Rouge:0']],
+0x0307: ['Archer', 1, ['Robin Hood:1']],
+0x030e: ['Wizard', 2, ['Merlin:2', 'Elder Wizard:14']],
+0x0310: ['Priest', 3, ['Traditional:3', 'Robed Priest:15']],
+0x031d: ['Warrior', 4, ['Strength Warrior:4']],
+0x031e: ['Knight', 5, ['Blue Knight:5', 'Blue Knight Alt:7']],
+0x031f: ['Paladin', 6, ['Decorated Paladin:6']],
+0x0320: ['Assassin', 7, []], // ['No Assassin:6']],
+0x0321: ['Necromancer', 8, ['Skull Necromancer:8']],
+0x0322: ['Huntress', 9, ['Battle Huntress:9']],
+0x0323: ['Mystic', 10, ['Gem Mystic:10']],
+0x0324: ['Trickster', 11, ['Super Trickster:11']],
+0x0325: ['Sorcerer', 12, ['Sorcerer Mage:12']],
+0x0326: ['Ninja', 13, ['Dark Ninja:13']],
+}
+
+var REALDYES = [
+'black',
+'blue',
+'brown',
+'fuchsia',
+'gray',
+'green',
+'maroon',
+'olive',
+'orange',
+'pink',
+'purple',
+'red',
+'salmon',
+'silver',
+'tan',
+'teal',
+'turquoise',
+'white',
+'yellow',
+'beige',
+'thistle',
+'sienna',
+'orchid',
+'plum',
+'royal blue',
+]
 
 var ready = false;
 
 var sprites = {};
 var stage, sctx;
-var cur_class = 2, cur_dir = 0, cur_frame = 0;
+var cur_class = 0x030e, cur_skin = -1, cur_dir = 0, cur_frame = 0;
 var tx = [-1, -1];
 var sc = 0;
 
@@ -187,9 +229,11 @@ function frame(id, scale) {
 	// grad.addColorStop(1, 'rgba(0,0,0,0.15)');
 	
 	function pastesprite(id) {
-		var i = cur_class * 21 + id;
-		var spr = sprites['players'][i];
-		var mask = sprites['players_mask'][i];
+		var i = ~cur_skin ? cur_skin : CLASSES[cur_class][1]
+		i = i * 21 + id;
+		var sh = ~cur_skin ? 'playersSkins' : 'players'
+		var spr = sprites[sh][i];
+		var mask = sprites[sh + 'Mask'][i];
 		var xd = 1 - (cur_dir == 2) * 2;
 		for (var xi = 0; xi < 8; x += scale * xd, xi++) {
 			for (var yi = 0, y = 0; yi < 8; y += scale, yi++) {
@@ -279,9 +323,17 @@ $(function(){
 	function statechanged(replace) {
 		var state = History.getState();
 		var t = state.hash.replace(/[\/\?]/g, '').replace(/=[^&]*/g, '').split('&');
-		cur_class = isNaN(+t[0]) || t[0] == '' ? cur_class : +t[0];
-		tx[0] = isNaN(+t[1]) || t[1] == '' ? tx[0] : +t[1];
-		tx[1] = isNaN(+t[2]) || t[2] == '' ? tx[1] : +t[2];
+		var csa = t[0].split('.')
+		cur_class = isNaN(csa[0]) || csa[0] == '' ? cur_class : +csa[0];
+		for (var i in CLASSES) {
+			if (CLASSES[i][1] == cur_class) {
+				cur_class = i
+				break
+			}
+		}
+		cur_skin = isNaN(csa[1]) || csa[1] == '' ? -1 : +csa[1]
+		tx[0] = isNaN(t[1]) || t[1] == '' ? tx[0] : +t[1];
+		tx[1] = isNaN(t[2]) || t[2] == '' ? tx[1] : +t[2];
 		newstate(replace);
 	}
 	History.Adapter.bind(window, 'statechange', statechanged);
@@ -293,9 +345,20 @@ function newstate(replace) {
 	if (state_lock) return;
 	state_lock = true;
 	update_visuals();
-	var url = '/?' + [cur_class, tx[0], tx[1]].join('&');
+	var cs = CLASSES[cur_class][1] + (~cur_skin ? '.' + cur_skin : '')
+	var url = '/?' + [cs, tx[0], tx[1]].join('&');
 	(replace ? History.replaceState : History.pushState)(null, document.title, url);
 	state_lock = false;
+}
+
+function update_skins() {
+	var s = $('#skinsel')
+	s.empty().append($('<div>').text('Classic').data('id', -1))
+	var sa = CLASSES[cur_class][2]
+	for (var i = 0; i < sa.length; i++) {
+		var t = sa[i].split(':')
+		s.append($('<div>').text(t[0]).data('id', t[1]))
+	}
 }
 
 function init_stage() {
@@ -306,14 +369,23 @@ function init_stage() {
 	
 	// classes
 	var clsel = $('#clsel');
-	for (var i = 0; i < CLASSES.length; i++) {
-		var cl = $('<div/>').text(CLASSES[i]).data('id', i).appendTo(clsel);
+	for (var i in CLASSES) {
+		$('<div/>').text(CLASSES[i][0]).data('id', i).appendTo(clsel);
 	}
 	clsel.delegate('div', 'click', function() {
-		cur_class = $(this).data('id');
-		newstate();
+		cur_class = +$(this).data('id');
+		cur_skin = -1;
+		update_skins()
+		newstate()
 	});
 	
+	// skins
+	$('#skinsel').delegate('div', 'click', function() {
+		cur_skin = +$(this).data('id')
+		newstate()
+	})
+	
+	update_skins()
 	frame();
 	
 	// wasd
@@ -362,6 +434,13 @@ function init_stage() {
 	update_visuals();
 }
 
+function update_sel(id, elid) {
+	var b = $('#' + id)
+	b.find('.selected').removeClass('selected')
+	b.find('div').each(function() {
+		if ($(this).data('id') == elid) $(this).addClass('selected')
+	})
+}
 
 function update_visuals() {
 	if (!ready) return;
@@ -374,6 +453,8 @@ function update_visuals() {
 		if (tx[t] == -1) $ind.hide();
 		else $ind.show().appendTo($t);
 	}
+	update_sel('clsel', cur_class)
+	update_sel('skinsel', cur_skin)
 	frame();
 }
 
