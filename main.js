@@ -363,6 +363,8 @@ function update_skins() {
 
 function init_stage() {
 	stage = $('#stage')[0], sctx = stage.getContext('2d');
+	sctx.imageSmoothingEnabled = false;
+	sctx.webkitImageSmoothingEnabled = false;
 	sctx.mozImageSmoothingEnabled = false;
 	
 	init_dyes();
