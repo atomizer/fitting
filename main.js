@@ -7,12 +7,12 @@ var DFRAMES = [[0, 1, 0, 4, 5], [7, 8, 9, 11, 12], [0, 1, 0, 4, 5], [14, 15, 16,
 var DKEYS = [68, 83, 65, 87]; // dsaw
 
 var CLASSES = {
-0x0300: ['Rogue', 0, ['Rough Rouge:0']],
+0x0300: ['Rogue', 0, ['Bandit:0']],
 0x0307: ['Archer', 1, ['Robin Hood:1']],
 0x030e: ['Wizard', 2, ['Merlin:2', 'Elder Wizard:14']],
 0x0310: ['Priest', 3, ['Traditional:3', 'Robed Priest:15']],
-0x031d: ['Warrior', 4, ['Strength Warrior:4']],
-0x031e: ['Knight', 5, ['Blue Knight:5', 'Blue Knight Alt:7']],
+0x031d: ['Warrior', 4, ['Juggernaut:4']],
+0x031e: ['Knight', 5, ['Knight of the Round:5']],
 0x031f: ['Paladin', 6, ['Decorated Paladin:6']],
 0x0320: ['Assassin', 7, []], // ['No Assassin:6']],
 0x0321: ['Necromancer', 8, ['Skull Necromancer:8']],
@@ -20,7 +20,7 @@ var CLASSES = {
 0x0323: ['Mystic', 10, ['Gem Mystic:10']],
 0x0324: ['Trickster', 11, ['Super Trickster:11']],
 0x0325: ['Sorcerer', 12, ['Sorcerer Mage:12']],
-0x0326: ['Ninja', 13, ['Dark Ninja:13']],
+0x0326: ['Ninja', 13, ['Shadow:13']],
 }
 
 var REALDYES = [
