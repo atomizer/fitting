@@ -1,3 +1,5 @@
+/*global dyes skins History */
+
 var SNAMES = ['players', 'playersMask', 'playersSkins', 'playersSkinsMask', 4, 5, 9, 10];
 var SBASE = 'sheets';
 
@@ -43,19 +45,19 @@ var cur_class = 0x030e, cur_skin = -1, cur_dir = 0, cur_frame = 0;
 var tx = [-1, -1];
 var sc = 0;
 
-BLUSH_PERIOD = 600
-WALK_PERIOD = 300
+var BLUSH_PERIOD = 600
+var WALK_PERIOD = 300
 var walking = false, attacking = false, blushing = false;
-var d_wstart = new Date, d_bstart = d_wstart;
+var d_wstart = Date.now(), d_bstart = d_wstart;
 var r_down = false;
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
-	return window.requestAnimationFrame    || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame    || 
-		window.oRequestAnimationFrame      || 
-		window.msRequestAnimationFrame     || 
+	return window.requestAnimationFrame    ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame    ||
+		window.oRequestAnimationFrame      ||
+		window.msRequestAnimationFrame     ||
 		function( callback ){
 			window.setTimeout(callback, 1000 / 60);
 		};
@@ -87,11 +89,11 @@ function extract_sprites(img, sx, sy) {
 function load_img(src, t, s) {
 	var i = new Image();
 	var d = new $.Deferred();
-	
+
 	i.onload = function() { d.resolve(this, t, s);	}
 	i.onerror = function() { d.reject(src);	}
 	i.src = src;
-	
+
 	return d.promise();
 }
 
@@ -99,7 +101,7 @@ function load_img(src, t, s) {
 function load_sheets() {
 	var d = new $.Deferred(),
 		wait = SNAMES.length;
-	
+
 	for (var i = 0; i < SNAMES.length; i++) {
 		var src = SNAMES[i];
 		var sz = +src;
@@ -119,14 +121,14 @@ function load_sheets() {
 
 function init_dyes() {
 	var dyebox = $('#dyebox');
-	
+
 	dyebox.delegate('.dye', 'click', function(e) {
 		var t = +e.shiftKey;
 		var $t = $(this), id = $t.data('id');
 		tx[t] = (tx[t] == id) ? -1 : id;
 		newstate();
 	});
-	
+
 	for (var i = 0; i < dyes.length; i++) {
 		var d = dyes[i];
 		var dname = d[0].replace(/ cloth$| clothing dye$/i, '');
@@ -148,7 +150,7 @@ function init_dyes() {
 		}
 		c.data('id', i);
 		c.attr('title', dname);
-		d[1] == 1 ? c.appendTo(dyebox) : c.insertBefore(dyebox.find('br'));
+		if (d[1] == 1) c.appendTo(dyebox); else c.insertBefore(dyebox.find('br'));
 	}
 }
 
@@ -184,34 +186,34 @@ var ftimer
 function frame(id, scale) {
 	ftimer = 1
 	var cur_frame = 0, blush = 0;
-	
+
 	if (walking || attacking) {
-		cur_frame = (new Date - d_wstart) % WALK_PERIOD;
+		cur_frame = (Date.now() - d_wstart) % WALK_PERIOD;
 		cur_frame = (cur_frame / WALK_PERIOD < 0.5) ? 1 : 2;
 		if (attacking) cur_frame += 2;
 	}
 	if (blushing) {
-		blush = (new Date - d_bstart) % BLUSH_PERIOD;
+		blush = (Date.now() - d_bstart) % BLUSH_PERIOD;
 		blush /= BLUSH_PERIOD;
 		blush = 127 * (1 - 2 * Math.abs(Math.asin(2 * blush - 1) / Math.PI));
 	}
-	
+
 	id = id || DFRAMES[cur_dir][cur_frame] || 0;
 	scale = scale || 5;
 
 	var c = sctx;
-	
+
 	c.save();
 	c.clearRect(0, 0, stage.width, stage.height);
 	c.translate(stage.width/2, stage.height/2);
-	
+
 	c.scale(sc+1, sc+1);
 	c.translate(-4 * scale, -4 * scale);
-	
+
 	// var grad = c.createLinearGradient(0, scale*3, 0, scale*8);
 	// grad.addColorStop(0, 'black');
 	// grad.addColorStop(1, 'rgba(0,0,0,0.15)');
-	
+
 	function pastesprite(id) {
 		var i = ~cur_skin ? cur_skin : skins[cur_class][1]
 		i = i * 21 + id;
@@ -221,13 +223,13 @@ function frame(id, scale) {
 		var xd = 1 - (cur_dir == 2) * 2;
 		for (var xi = 0; xi < 8; x += scale * xd, xi++) {
 			for (var yi = 0, y = 0; yi < 8; y += scale, yi++) {
-				
+
 				if (!p_comp(spr, xi, yi, 3)) continue;
-				
+
 				// standart
 				c.fillStyle = p_css(spr, xi, yi);
 				c.fillRect(x, y, scale, scale);
-				
+
 				// if there is something on mask, paint over
 				if (p_comp(mask, xi, yi, 3)) {
 					for (var ch = 0; ch < 2; ch++) { // 2 textures/channels
@@ -240,12 +242,12 @@ function frame(id, scale) {
 						c.fillRect(x, y, scale, scale);
 					}
 				}
-				
+
 				// c.fillStyle = grad;
 				// c.globalCompositeOperation = 'substract';
 				// c.fillRect(x, y, scale, scale);
 				// c.restore();
-				
+
 				// outline
 				c.save();
 				c.globalCompositeOperation = 'destination-over';
@@ -261,7 +263,7 @@ function frame(id, scale) {
 		pastesprite(id + 1);
 	}
 	c.restore();
-	
+
 	// gradient + blush (had to do by hand because there's no actual "substract" blending, d'oh)
 	scale *= sc+1;
 	var x0 = stage.width/2 - scale*12; // gaaaaaaaahhhh
@@ -279,16 +281,16 @@ function frame(id, scale) {
 		}
 	}
 	c.putImageData(d, x0, y0);
-	
+
 	// shadow - iffy, no chrome
-/* 	c.save();
+/*	c.save();
 	c.shadowBlur = 10;
 	c.shadowColor = 'black';
 	c.drawImage(stage, 0, 0);
-	c.restore(); */
-	
+	c.restore();*/
+
 	if (walking || blushing) {
-		requestAnimFrame(function() {frame() });
+		window.requestAnimFrame(function() {frame() });
 	} else {
 		ftimer = 0
 	}
@@ -350,9 +352,9 @@ function init_stage() {
 	sctx.imageSmoothingEnabled = false;
 	sctx.webkitImageSmoothingEnabled = false;
 	sctx.mozImageSmoothingEnabled = false;
-	
+
 	init_dyes();
-	
+
 	// classes
 	var clsel = $('#clsel');
 	for (var i in skins) {
@@ -363,13 +365,13 @@ function init_stage() {
 		cur_skin = -1;
 		newstate()
 	});
-	
+
 	// skins
 	$('#skinsel').delegate('div', 'click', function() {
 		cur_skin = +$(this).data('id')
 		newstate()
 	})
-	
+
 	// wasd
 	$(document)
 	.keydown(function(e){
@@ -401,17 +403,17 @@ function init_stage() {
 		walking = attacking = false;
 		frame();
 	});
-	
+
 	$('#stage').click(function(e) {
 		if (e.shiftKey) {
 			blushing = !blushing;
-			d_bstart = new Date;
+			d_bstart = Date.now();
 		} else sc = +!sc;
 		frame();
 	});
-	
+
 	$(document).mousedown(function(e) { e.preventDefault(); });
-	
+
 	ready = true;
 	update_visuals();
 	frame();
