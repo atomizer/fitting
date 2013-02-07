@@ -277,18 +277,25 @@ $(function(){
 	// url stuff
 	function statechanged(replace) {
 		var state = History.getState();
-		var t = state.hash.replace(/[\/\?]/g, '').replace(/=[^&]*/g, '').split('&');
-		var csa = t[0].split('.')
-		cur_class = isNaN(csa[0]) || csa[0] == '' ? cur_class : +csa[0];
-		for (var i in skins) {
-			if (skins[i][1] == cur_class) {
-				cur_class = i
-				break
+		var m = state.hash.match(/\?(\d+)(?:\.(\d+))?[^&]*&(-?\d+)[^&]*&(-?\d+)[^&]*/)
+		if (m) {
+			for (var i in skins) {
+				if (skins[i][1] == m[1]) {
+					cur_class = i
+					break
+				}
 			}
+			if (isNaN(m[2])) m[2] = -1
+			var sarr = skins[cur_class][2]
+			for (var j = 0; j < sarr.length; j++) {
+				if (sarr[j][1] == m[2]) {
+					cur_skin = m[2]
+					break
+				}
+			}
+			tx[0] = dyes[m[3]] ? +m[3] : -1
+			tx[1] = dyes[m[4]] ? +m[4] : -1
 		}
-		cur_skin = isNaN(csa[1]) || csa[1] == '' ? -1 : +csa[1]
-		tx[0] = isNaN(t[1]) || t[1] == '' ? tx[0] : +t[1];
-		tx[1] = isNaN(t[2]) || t[2] == '' ? tx[1] : +t[2];
 		newstate(replace);
 	}
 	History.Adapter.bind(window, 'statechange', statechanged);
