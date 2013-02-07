@@ -11,7 +11,7 @@
 	<script type="application/javascript" src="main.js"></script>
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<link rel="shortcut icon" type="image/x-png" href="favicon.png">
-	
+
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -29,13 +29,17 @@
 </head>
 <body>
 <div id="main">
-	<div id="stagebox">
+	<div id="mainbox">
 		<noscript><div class="err">You need to <a href="http://www.enable-javascript.com/" target="_blank">enable javascript</a> to use this page!</div></noscript>
 		<div>
 			<div id="clsel" class="sel"></div>
 			<div id="skinsel" class="sel"></div>
 		</div>
-		<canvas id="stage" width="180" height="180"></canvas>
+		<div id="stagebox">
+			<canvas id="stage" width="180" height="180"></canvas>
+			<div>Main: <span id="desc0" class="dyedesc"></span></div>
+			<div>Accessory: <span id="desc1" class="dyedesc"></span></div>
+		</div>
 		<div id="ind0" style="display: none;">M</div>
 		<div id="ind1" style="display: none;">A</div>
 		<div id="dyebox"><br></div>

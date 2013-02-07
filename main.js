@@ -102,7 +102,8 @@ function init_dyes() {
 	var cactx = ca.getContext('2d');
 	for (var i = 0; i < dyes.length; i++) {
 		var d = dyes[i];
-		var dname = d[0].replace(/ cloth$| clothing dye$/i, '');
+		var isdye = ~d[0].search(/ dye$/i)
+		d[0] = d[0].replace(/ cloth$| clothing dye$/i, '');
 		if (d[1] == 1) {
 			// dye
 			d[3] = d[2]
@@ -113,7 +114,7 @@ function init_dyes() {
 			cactx.putImageData(spr, 0, 0);
 			d[3] = cactx.createPattern(ca, 'repeat');
 		}
-		if (~d[0].search(/dye$/i) && !~REALDYES.indexOf(dname)) continue;
+		if (isdye && !~REALDYES.indexOf(d[0])) continue;
 		var c = $('<div/>').addClass('dye');
 		if (d[1] == 1) {
 			// dye
@@ -123,7 +124,7 @@ function init_dyes() {
 			c.css('background-image', 'url(' + ca.toDataURL() + ')');
 		}
 		c.data('id', i);
-		c.attr('title', dname);
+		c.attr('title', d[0]);
 		if (d[1] == 1) c.appendTo(dyebox); else c.insertBefore(dyebox.find('br'));
 	}
 }
@@ -416,6 +417,7 @@ function update_visuals() {
 		});
 		var $ind = $('#ind' + t);
 		if (!$t.length) $ind.hide(); else $ind.show().appendTo($t);
+		$('#desc' + t).text(dyes[tx[t]] ? dyes[tx[t]][0] : 'none')
 	}
 	update_skins()
 	update_sel('clsel', cur_class)

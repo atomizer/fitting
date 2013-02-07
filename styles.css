@@ -47,24 +47,32 @@ body {
 	background: #eee;
 }
 
-#stagebox {
+#mainbox {
 	text-align: center;
 }
 
-#stage, #dyebox, #main, #clsel, #skinsel {
+#stage, #stagebox, #dyebox, #main, #clsel, #skinsel {
 	display: inline-block;
 }
 
 #stage {
 	border: 2px solid #777;
-	vertical-align: top;
-	margin-right: 10px;
+	margin: 0 10px 10px 0;
 	image-rendering: optimizeSpeed;
 	image-rendering: -moz-crisp-edges;
 	image-rendering: -webkit-optimize-contrast;
 	image-rendering: optimize-contrast;
 	-ms-interpolation-mode: nearest-neighbor;
 }
+
+#stagebox {
+	vertical-align: top;
+	text-align: left;
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+}
+
+.dyedesc { font-weight: bold; }
 
 #dyebox {
 	text-align: left;
