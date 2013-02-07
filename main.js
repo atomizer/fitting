@@ -1,41 +1,10 @@
-/*global dyes skins History */
+/*global dyes skins History REALDYES */
 
 var SNAMES = ['players', 'playersMask', 'playersSkins', 'playersSkinsMask', 4, 5, 9, 10];
 var SBASE = 'sheets';
 
 var DFRAMES = [[0, 1, 0, 4, 5], [7, 8, 9, 11, 12], [0, 1, 0, 4, 5], [14, 15, 16, 18, 19]];
 var DKEYS = [68, 83, 65, 87]; // dsaw
-
-var REALDYES = [
-'beige',
-'black',
-'blue',
-'brown',
-'fire brick',
-'fuchsia',
-'gray',
-'green',
-'maroon',
-'mint cream',
-'olive',
-'orange',
-'orchid',
-'pink',
-'plum',
-'purple',
-'red',
-'royal blue',
-'salmon',
-'sienna',
-'silver',
-'steel blue',
-'tan',
-'teal',
-'thistle',
-'turquoise',
-'white',
-'yellow',
-]
 
 var ready = false;
 
@@ -132,7 +101,7 @@ function init_dyes() {
 	for (var i = 0; i < dyes.length; i++) {
 		var d = dyes[i];
 		var dname = d[0].replace(/ cloth$| clothing dye$/i, '');
-		if (~d[0].search(/dye$/i) && !~REALDYES.indexOf(dname.toLowerCase())) continue;
+		if (~d[0].search(/dye$/i) && !~REALDYES.indexOf(dname)) continue;
 		var c = $('<div/>').addClass('dye');
 		if (d[1] == 1) {
 			// dye
