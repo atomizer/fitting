@@ -98,24 +98,29 @@ function init_dyes() {
 		newstate();
 	});
 
+	var ca = document.createElement('canvas');
+	var cactx = ca.getContext('2d');
 	for (var i = 0; i < dyes.length; i++) {
 		var d = dyes[i];
 		var dname = d[0].replace(/ cloth$| clothing dye$/i, '');
+		if (d[1] == 1) {
+			// dye
+			d[3] = d[2]
+		} else {
+			// cloth
+			var spr = sprites[d[1]][d[2]];
+			ca.width = spr.width; ca.height = spr.height;
+			cactx.putImageData(spr, 0, 0);
+			d[3] = cactx.createPattern(ca, 'repeat');
+		}
 		if (~d[0].search(/dye$/i) && !~REALDYES.indexOf(dname)) continue;
 		var c = $('<div/>').addClass('dye');
 		if (d[1] == 1) {
 			// dye
 			c.css('background-color', d[2]);
-			d[3] = d[2];
 		} else {
 			// cloth
-			var spr = sprites[d[1]][d[2]];
-			var ca = document.createElement('canvas');
-			ca.width = spr.width; ca.height = spr.height;
-			var cactx = ca.getContext('2d');
-			cactx.putImageData(spr, 0, 0);
 			c.css('background-image', 'url(' + ca.toDataURL() + ')');
-			d[3] = cactx.createPattern(ca, 'repeat');
 		}
 		c.data('id', i);
 		c.attr('title', dname);
@@ -409,10 +414,8 @@ function update_visuals() {
 		var $t = $('.dye').filter(function() {
 			return +$(this).data('id') == tx[t];
 		});
-		if (!$t.length) tx[t] = -1;
 		var $ind = $('#ind' + t);
-		if (tx[t] == -1) $ind.hide();
-		else $ind.show().appendTo($t);
+		if (!$t.length) $ind.hide(); else $ind.show().appendTo($t);
 	}
 	update_skins()
 	update_sel('clsel', cur_class)
