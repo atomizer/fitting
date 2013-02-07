@@ -301,7 +301,7 @@ function newstate(replace) {
 	state_lock = true;
 	update_visuals();
 	var cs = skins[cur_class][1] + (~cur_skin ? '.' + cur_skin : '')
-	var url = '/?' + [cs, tx[0], tx[1]].join('&');
+	var url = document.location.pathname + '?' + [cs, tx[0], tx[1]].join('&');
 	(replace ? History.replaceState : History.pushState)(null, document.title, url);
 	state_lock = false;
 }
