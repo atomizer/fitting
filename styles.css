@@ -6,7 +6,7 @@ body {
 }
 
 #main {
-	width: 700px;
+	width: 850px;
 	background: #bbb;
 	text-align: left;
 	padding: 0;
@@ -15,7 +15,7 @@ body {
 .sel {
 	text-align: left;
 	font: bold 12px Arial,sans-serif;
-	margin: 10px 5px;
+	margin: 10px;
 	vertical-align: top;
 }
 
@@ -24,7 +24,7 @@ body {
 }
 
 #skinsel {
-	width: 124px;
+	width: 248px;
 }
 
 .sel div {
@@ -35,6 +35,13 @@ body {
 	margin: 2px;
 	background: #ddd;
 	width: 90px;
+}
+
+.sel span {
+	display: block;
+	font-size: 16px;
+	text-align: center;
+	margin-bottom: 4px;
 }
 
 #skinsel div { width: 120px; }
@@ -77,7 +84,7 @@ body {
 #dyebox {
 	text-align: left;
 	background-color: #333;
-	width: 400px;
+	width: 600px;
 	line-height: 0;
 	padding: 3px;
 }

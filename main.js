@@ -321,7 +321,8 @@ function newstate(replace) {
 
 function update_skins() {
 	var s = $('#skinsel')
-	s.empty().append($('<div>').text('Classic').data('id', -1))
+	s.find('div').remove()
+	s.append($('<div>').text('Classic').data('id', -1))
 	var sa = skins[cur_class][2]
 	for (var i = 0; i < sa.length; i++) {
 		var t = sa[i]
