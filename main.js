@@ -91,10 +91,13 @@ function load_sheets() {
 function init_dyes() {
 	var dyebox = $('#dyebox');
 
-	dyebox.delegate('.dye', 'click', function(e) {
-		var t = +e.shiftKey;
-		var $t = $(this), id = $t.data('id');
-		tx[t] = (tx[t] == id) ? -1 : id;
+	dyebox.on('click', '.dye', function(e) {
+		var $t = $(this)
+		var k = +e.shiftKey
+		var offx = e.pageX - $t.offset().left
+		k = k || Math.round(offx / $t.width())
+		var id = $t.data('id')
+		tx[k] = (tx[k] == id) ? -1 : id;
 		newstate();
 	});
 
@@ -345,14 +348,14 @@ function init_stage() {
 	for (var i in skins) {
 		$('<div/>').text(skins[i][0]).data('id', i).appendTo(clsel);
 	}
-	clsel.delegate('div', 'click', function() {
+	clsel.on('click', 'div', function() {
 		cur_class = +$(this).data('id');
 		cur_skin = -1;
 		newstate()
 	});
 
 	// skins
-	$('#skinsel').delegate('div', 'click', function() {
+	$('#skinsel').on('click', 'div', function() {
 		cur_skin = +$(this).data('id')
 		newstate()
 	})
