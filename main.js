@@ -285,6 +285,7 @@ $(function(){
 		var state = History.getState();
 		var m = state.hash.match(/\?(\d+)(?:\.(\d+))?[^&]*&(-?\d+)[^&]*&(-?\d+)[^&]*/)
 		if (m) {
+			cur_class = 2
 			for (var i in skins) {
 				if (skins[i][1] == m[1]) {
 					cur_class = i
@@ -293,6 +294,7 @@ $(function(){
 			}
 			if (isNaN(m[2])) m[2] = -1
 			var sarr = skins[cur_class][2]
+			cur_skin = -1
 			for (var j = 0; j < sarr.length; j++) {
 				if (sarr[j][1] == m[2]) {
 					cur_skin = m[2]
