@@ -119,3 +119,11 @@ hr {
 	margin: 20px;
 }
 
+
+.ui-tooltip {
+	box-shadow: none;
+	border: 1px solid #777;
+	font-size: 12px;
+	padding: 2px 4px;
+	background: #ccc;
+}

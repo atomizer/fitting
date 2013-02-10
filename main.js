@@ -400,6 +400,15 @@ function init_stage() {
 		frame();
 	});
 
+	$('#dyebox').tooltip({
+		position: {
+			my: 'center top',
+			at: 'center+1 bottom'
+		},
+		show: false,
+		hide: false
+	})
+
 	$(document).mousedown(function(e) { e.preventDefault(); });
 
 	ready = true;
