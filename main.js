@@ -1,4 +1,4 @@
-/*global dyes skins History REALDYES */
+/*global dyes skins History */
 
 var SNAMES = ['players', 'playersMask', 'playersSkins', 'playersSkinsMask', 4, 5, 9, 10];
 var SBASE = 'sheets';
@@ -117,7 +117,6 @@ function init_dyes() {
 			cactx.putImageData(spr, 0, 0);
 			d[3] = cactx.createPattern(ca, 'repeat');
 		}
-		//if (isdye && !~REALDYES.indexOf(d[0])) continue;
 		var c = $('<div/>').addClass('dye');
 		if (d[1] == 1) {
 			// dye
