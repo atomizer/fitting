@@ -404,7 +404,10 @@ function init_stage() {
 			my: 'center top',
 			at: 'center+1 bottom'
 		},
-		show: false,
+		show: {
+			effect: 'none',
+			delay: 150
+		},
 		hide: false
 	})
 
