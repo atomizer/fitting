@@ -181,7 +181,6 @@ function frame(id, scale) {
 	c.clearRect(0, 0, stage.width, stage.height);
 	c.translate(stage.width/2, stage.height/2);
 
-	c.scale(sc+1, sc+1);
 	c.translate(-4 * scale, -4 * scale);
 
 	// var grad = c.createLinearGradient(0, scale*3, 0, scale*8);
@@ -239,7 +238,6 @@ function frame(id, scale) {
 	c.restore();
 
 	// gradient + blush (had to do by hand because there's no actual "substract" blending, d'oh)
-	scale *= sc+1;
 	var x0 = stage.width/2 - scale*12; // gaaaaaaaahhhh
 	var y0 = stage.height/2 - scale*4;
 	var d = c.getImageData(x0, y0, scale*24, scale*8);
@@ -394,7 +392,10 @@ function init_stage() {
 		if (e.shiftKey) {
 			blushing = !blushing;
 			d_bstart = Date.now();
-		} else sc = +!sc;
+		} else {
+			sc = +!sc;
+			stage.width = stage.height = 180 / (sc + 1)
+		}
 		frame();
 	});
 
