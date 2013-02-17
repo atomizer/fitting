@@ -1,7 +1,4 @@
-/*global dyes skins History */
-
-var SNAMES = ['players', 'playersMask', 'playersSkins', 'playersSkinsMask', 4, 5, 9, 10];
-var SBASE = 'sheets';
+/*global dyes sheets skins History */
 
 var DFRAMES = [[0, 1, 0, 4, 5], [7, 8, 9, 11, 12], [0, 1, 0, 4, 5], [14, 15, 16, 18, 19]];
 var DKEYS = [68, 83, 65, 87]; // dsaw
@@ -32,21 +29,13 @@ window.requestAnimFrame = (function(){
 		};
 })();
 
-function extract_sprites(img, sx, sy) {
+function extract_sprites(ctx, sx, sy) {
 	sx = sx || 8;
 	sy = sy || sx;
 	var i = 0, r = [];
-	var c = document.createElement('canvas');
-	c.width = img.width; c.height = img.height;
-	var ctx = c.getContext('2d');
-	ctx.drawImage(img, 0, 0);
-	for (var y = 0; y < c.height; y += sy) {
-		for (var x = 0; x < c.width; x += sx) {
+	for (var y = 0; y < ctx.canvas.height; y += sy) {
+		for (var x = 0; x < ctx.canvas.width; x += sx) {
 			var ri = ctx.getImageData(x, y, sx, sy);
-			// if it's full white or full transparent, skip
-			//var vi = ri.data[0];
-			//for (var k = 0; k < ri.data.length; k++) if (ri.data[k] != vi) break;
-			//if (k < ri.data.length)
 			r[i] = ri;
 			i++;
 		}
@@ -54,37 +43,39 @@ function extract_sprites(img, sx, sy) {
 	return r;
 }
 
-
-function load_img(src, t, s) {
-	var i = new Image();
-	var d = new $.Deferred();
-
-	i.onload = function() { d.resolve(this, t, s);	}
-	i.onerror = function() { d.reject(src);	}
-	i.src = src;
-
-	return d.promise();
+function load_img(src, name, sz) {
+	var i = new Image()
+	var d = new $.Deferred()
+	i.onload = function() { d.resolve(this, name, sz) }
+	i.src = src
+	return d.promise()
 }
 
-
 function load_sheets() {
-	var d = new $.Deferred(),
-		wait = SNAMES.length;
+	var d = new $.Deferred(), wait = 0
+	for (var s in sheets) wait++
 
-	for (var i = 0; i < SNAMES.length; i++) {
-		var src = SNAMES[i];
-		var sz = +src;
-		if (src == +src) src = 'textile' + src + 'x' + src;
-		src = SBASE + '/' + src + '.png';
-
-		load_img(src, SNAMES[i], sz)
-		.done(function(img, t, s) {
-			sprites[t] = extract_sprites(img, s);
-			if (!--wait) d.resolve();
-		})
-		.fail(function(){ d.reject(); });
+	function loaded(img, name, sz) {
+		var c = document.createElement('canvas')
+		c.width = img.width; c.height = img.height
+		var ctx = c.getContext('2d')
+		ctx.drawImage(img, 0, 0)
+		if (!sz) {
+			sprites[name] = extract_sprites(ctx)
+		} else {
+			sprites[sz] = ctx
+		}
+		if (!--wait) d.resolve()
 	}
-	return d.promise();
+
+	for (var n in sheets) {
+		var src = sheets[n]
+		var sz = null
+		var m = n.match(/^textile(\d+)x(\d+)$/)
+		if (m) sz = +m[1]
+		load_img(src, n, sz).done(loaded)
+	}
+	return d.promise()
 }
 
 
@@ -277,11 +268,13 @@ function frame(id, scale) {
 
 // action
 
-var preload = load_sheets();
+var preload = load_sheets()
 
 $(function(){
 	// ensure that dom is ready before calling init_stage, but allow preload to start earlier
-	preload.done(function(){init_stage()});
+	preload.done(function() {
+		init_stage()
+	})
 	// url stuff
 	function statechanged(replace) {
 		var state = History.getState();
