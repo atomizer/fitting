@@ -94,32 +94,38 @@ function init_dyes() {
 
 	var ca = document.createElement('canvas');
 	var cactx = ca.getContext('2d');
-	for (var i = 0; i < dyes.length; i++) {
-		var d = dyes[i];
-		var isdye = ~d[0].search(/ dye$/i)
-		d[0] = d[0].replace(/ cloth$| clothing dye$/i, '');
-		if (d[1] == 1) {
+	var dyeels = []
+	for (var i in dyes) {
+		var d = dyes[i], sz = d[1]
+		if (sz == 1) {
 			// dye
 			d[3] = d[2]
 		} else {
 			// cloth
-			var spr = sprites[d[1]][d[2]];
-			ca.width = spr.width; ca.height = spr.height;
+			var id = d[2]
+			var spr = sprites[sz].getImageData(sz * (id & 0xf), sz * (id >> 4), sz, sz)
+			ca.width = sz; ca.height = sz;
 			cactx.putImageData(spr, 0, 0);
 			d[3] = cactx.createPattern(ca, 'repeat');
 		}
 		var c = $('<div/>').addClass('dye');
-		if (d[1] == 1) {
+		if (sz == 1) {
 			// dye
 			c.css('background-color', d[2]);
+			c.data('color', jQuery.Color(d[2]))
 		} else {
 			// cloth
 			c.css('background-image', 'url(' + ca.toDataURL() + ')');
 		}
 		c.data('id', i);
 		c.attr('title', d[0]);
-		if (d[1] == 1) c.appendTo(dyebox); else c.insertBefore(dyebox.find('br'));
+		if (sz == 1) dyeels.push(c); else c.insertBefore(dyebox.find('br'));
 	}
+	dyeels.sort(function(a, b) {
+		var ca = a.data('color'), cb = b.data('color')
+		return (ca.lightness() - cb.lightness()) || (ca.hue() - cb.hue())
+	})
+	dyebox.append(dyeels)
 }
 
 
