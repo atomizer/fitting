@@ -282,27 +282,28 @@ $(function(){
 	// url stuff
 	function statechanged(replace) {
 		var state = History.getState();
-		var m = state.hash.match(/\?(\d+)(?:\.(\d+))?[^&]*&(-?\d+)[^&]*&(-?\d+)[^&]*/)
-		if (m) {
-			cur_class = 2
-			for (var i in skins) {
-				if (skins[i][1] == m[1]) {
-					cur_class = i
-					break
-				}
-			}
-			if (isNaN(m[2])) m[2] = -1
-			var sarr = skins[cur_class][2]
-			cur_skin = -1
-			for (var j = 0; j < sarr.length; j++) {
-				if (sarr[j][1] == m[2]) {
-					cur_skin = m[2]
-					break
-				}
-			}
-			tx[0] = dyes[m[3]] ? +m[3] : -1
-			tx[1] = dyes[m[4]] ? +m[4] : -1
+		var m = state.hash.split('?')[1].split(/[=&]/)[0].split('.')
+		for (var p = 0; p < m.length && p < 4; p++) {
+			m[p] = parseInt(m[p], 36)
+			if (isNaN(m[p])) m[p] = -1
 		}
+		cur_class = 782
+		for (var i in skins) {
+			if (skins[i][1] == m[0]) {
+				cur_class = i
+				break
+			}
+		}
+		var sarr = skins[cur_class][2]
+		cur_skin = -1
+		for (var j = 0; j < sarr.length; j++) {
+			if (sarr[j][1] == m[1]) {
+				cur_skin = m[1]
+				break
+			}
+		}
+		tx[0] = dyes[m[2]] ? +m[2] : -1
+		tx[1] = dyes[m[3]] ? +m[3] : -1
 		newstate(replace);
 	}
 	History.Adapter.bind(window, 'statechange', statechanged);
@@ -314,8 +315,12 @@ function newstate(replace) {
 	if (state_lock) return;
 	state_lock = true;
 	update_visuals();
-	var cs = skins[cur_class][1] + (~cur_skin ? '.' + cur_skin : '')
-	var url = document.location.pathname + '?' + [cs, tx[0], tx[1]].join('&');
+	var parts = []
+	parts.push(skins[cur_class][1].toString(36))
+	parts.push(~cur_skin ? cur_skin.toString(36) : '')
+	parts.push(tx[0] == -1 ? '' : (+tx[0]).toString(36))
+	parts.push(tx[1] == -1 ? '' : (+tx[1]).toString(36))
+	var url = document.location.pathname + '?' + parts.join('.');
 	(replace ? History.replaceState : History.pushState)(null, document.title, url);
 	state_lock = false;
 }
