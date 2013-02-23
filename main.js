@@ -6,7 +6,7 @@ var DKEYS = [68, 83, 65, 87]; // dsaw
 var ready = false;
 
 var sprites = {};
-var stage, sctx;
+var stage, sctx, bc, bctx;
 var cur_class = 0x030e, cur_skin = -1, cur_dir = 0, cur_frame = 0;
 var tx = [-1, -1];
 var sc = 0;
@@ -175,11 +175,11 @@ function frame(id, scale) {
 	id = id || DFRAMES[cur_dir][cur_frame] || 0;
 	scale = scale || 5;
 
-	var c = sctx;
+	var c = bctx;
 
 	c.save();
-	c.clearRect(0, 0, stage.width, stage.height);
-	c.translate(stage.width/2, stage.height/2);
+	c.clearRect(0, 0, bc.width, bc.height);
+	c.translate(bc.width/2, bc.height/2);
 
 	c.translate(-4 * scale, -4 * scale);
 
@@ -238,8 +238,8 @@ function frame(id, scale) {
 	c.restore();
 
 	// gradient + blush (had to do by hand because there's no actual "substract" blending, d'oh)
-	var x0 = stage.width/2 - scale*12; // gaaaaaaaahhhh
-	var y0 = stage.height/2 - scale*4;
+	var x0 = bc.width/2 - scale*12; // gaaaaaaaahhhh
+	var y0 = bc.height/2 - scale*4;
 	var d = c.getImageData(x0, y0, scale*24, scale*8);
 	for (var x = 0; x < scale * 24; x++) {
 		for (var y = 0; y < scale * 8; y++) {
@@ -253,6 +253,8 @@ function frame(id, scale) {
 		}
 	}
 	c.putImageData(d, x0, y0);
+	sctx.clearRect(0, 0, stage.width, stage.height)
+	sctx.drawImage(bc, 0, 0, stage.width, stage.height)
 
 	// shadow - iffy, no chrome
 /*	c.save();
@@ -341,6 +343,8 @@ function init_stage() {
 	sctx.imageSmoothingEnabled = false;
 	sctx.webkitImageSmoothingEnabled = false;
 	sctx.mozImageSmoothingEnabled = false;
+	bc = document.createElement('canvas'), bctx = bc.getContext('2d');
+	bc.width = bc.height = stage.width;
 
 	init_dyes();
 
@@ -399,7 +403,7 @@ function init_stage() {
 			d_bstart = Date.now();
 		} else {
 			sc = +!sc;
-			stage.width = stage.height = 180 / (sc + 1)
+			bc.width = bc.height = 180 / (sc + 1)
 		}
 		frame();
 	});
