@@ -158,6 +158,7 @@ function p_set(s, x, y, d) {
 var ftimer
 
 function frame(id, scale) {
+	if (ftimer) return
 	ftimer = 1
 	var cur_frame = 0, blush = 0;
 
@@ -264,7 +265,10 @@ function frame(id, scale) {
 	c.restore();*/
 
 	if (walking || blushing) {
-		window.requestAnimFrame(function() {frame() });
+		window.requestAnimFrame(function() {
+			ftimer = 0
+			frame()
+		})
 	} else {
 		ftimer = 0
 	}
@@ -385,7 +389,7 @@ function init_stage() {
 		cur_dir = dir;
 		walking = true;
 		attacking = e.shiftKey;
-		if (!ftimer) frame();
+		frame();
 	})
 	.keyup(function(e){
 		e.preventDefault();
