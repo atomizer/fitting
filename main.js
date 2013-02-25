@@ -288,7 +288,7 @@ $(function(){
 	// url stuff
 	function statechanged(replace) {
 		var state = History.getState();
-		var m = state.hash.split('?')[1].split(/[=&]/)[0].split('.')
+		var m = (state.hash.split('?')[1] || '').split(/[=&]/)[0].split('.')
 		for (var p = 0; p < m.length && p < 4; p++) {
 			m[p] = parseInt(m[p], 36)
 			if (isNaN(m[p])) m[p] = -1
@@ -321,13 +321,15 @@ function newstate(replace) {
 	if (state_lock) return;
 	state_lock = true;
 	update_visuals();
+	var url = document.location.pathname
 	var parts = []
 	parts.push(skins[cur_class][1].toString(36))
 	parts.push(~cur_skin ? cur_skin.toString(36) : '')
 	parts.push(tx[0] == -1 ? '' : (+tx[0]).toString(36))
 	parts.push(tx[1] == -1 ? '' : (+tx[1]).toString(36))
-	var url = document.location.pathname + '?' + parts.join('.');
-	(replace ? History.replaceState : History.pushState)(null, document.title, url);
+	parts = parts.join('.')
+	if (parts != '2...') url += '?' + parts
+	;(replace ? History.replaceState : History.pushState)(null, document.title, url);
 	state_lock = false;
 }
 
