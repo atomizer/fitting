@@ -370,6 +370,7 @@ function init_stage() {
 	})
 
 	// wasd
+	var keys = []
 	$(document)
 	.keydown(function(e){
 		if (e.altKey || e.ctrlKey || e.metaKey) return;
@@ -388,6 +389,7 @@ function init_stage() {
 		e.preventDefault();
 		cur_dir = dir;
 		walking = true;
+		if (!~keys.indexOf(dir)) keys.push(dir)
 		attacking = e.shiftKey;
 		frame();
 	})
@@ -396,8 +398,12 @@ function init_stage() {
 		var dir = DKEYS.indexOf(e.keyCode);
 		if (e.keyCode == 82) r_down = false;
 		attacking = e.shiftKey;
-		if (!~dir || cur_dir != dir) return;
-		walking = attacking = false;
+		keys = keys.filter(function(k) { return k != dir })
+		if (!keys.length) {
+			walking = attacking = false
+		} else {
+			cur_dir = keys[keys.length - 1]
+		}
 		frame();
 	});
 
