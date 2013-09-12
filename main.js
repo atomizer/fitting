@@ -207,7 +207,12 @@ function frame(id, scale) {
 				// if there is something on mask, paint over
 				if (p_comp(mask, xi, yi, 3)) {
 					for (var ch = 0; ch < 2; ch++) { // 2 textures/channels
-						if (!~tx[ch]) continue;
+						if (ch===0){
+							var paint = $("#toggle-main").is(":checked");
+						} else {
+							var paint = $("#toggle-accessory").is(":checked");
+						}
+						if (!~tx[ch] || !paint) continue;
 						var vol = p_comp(mask, xi, yi, ch);
 						if (!vol) continue;
 						c.fillStyle = dyes[tx[ch]][3];
@@ -285,6 +290,8 @@ $(function(){
 	preload.done(function() {
 		init_stage()
 	})
+	$("#toggle-main").change(function(){frame();});
+	$("#toggle-accessory").change(function(){frame();});
 	// url stuff
 	function statechanged(replace) {
 		var state = History.getState();

@@ -80,6 +80,10 @@ body {
 	font-size: 12px;
 }
 
+#stagebox > label {
+	display: inline-block;
+}
+
 .dyedesc { font-weight: bold; }
 
 #dyebox {
