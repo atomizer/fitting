@@ -121,11 +121,48 @@ function init_dyes() {
 		c.attr('title', d[0]);
 		if (sz == 1) dyeels.push(c); else c.insertBefore(dyebox.find('br'));
 	}
-	dyeels.sort(function(a, b) {
-		var ca = a.data('color'), cb = b.data('color')
-		return (ca.lightness() - cb.lightness()) || (ca.hue() - cb.hue())
-	})
+	dyeels = sortDyes(dyeels);
 	dyebox.append(dyeels)
+}
+
+function sortDyes(dyes= $(".dye[style*='color']")) {
+	var sort = "";
+	var sortTypes = $("input[name='sort-dyes']");
+	for (i=0; i < sortTypes.length; i++){
+		if(sortTypes[i].checked){
+			sort = sortTypes[i].id.substring(5);
+		}
+	}
+	if (sort==="lightness") {
+		dyes.sort(function(a,b){
+			if(a.length){
+				a = a[0], b = b[0];
+			}
+			var ca = jQuery.Color(a.style.backgroundColor), cb = jQuery.Color(b.style.backgroundColor);
+			return (ca.lightness() - cb.lightness()) || (ca.hue() - cb.hue());
+		});
+	} else if (sort==="hue") {
+		dyes.sort(function(a,b){
+			if(a.length){
+				a = a[0], b = b[0];
+			}
+			var ca = jQuery.Color(a.style.backgroundColor), cb = jQuery.Color(b.style.backgroundColor);
+			return (ca.hue() - cb.hue()) || (ca.lightness() - cb.lightness());
+		});
+	} else if (sort==="name") {
+		dyes.sort(function(a,b){
+			if(a.length){
+				a = a[0], b = b[0];
+			}
+			return a.getAttribute('title') > b.getAttribute('title');
+		});
+	}
+	return dyes;
+}
+
+function replaceDyes(newDyes){
+	$(".dye[style*='color']").remove();
+	$("#dyebox").append(newDyes);
 }
 
 
@@ -292,6 +329,7 @@ $(function(){
 	})
 	$("#toggle-main").change(function(){frame();});
 	$("#toggle-accessory").change(function(){frame();});
+	$("input[name='sort-dyes']").change(function(){replaceDyes(sortDyes());});
 	// url stuff
 	function statechanged(replace) {
 		var state = History.getState();
@@ -336,7 +374,7 @@ function newstate(replace) {
 	parts.push(tx[1] == -1 ? '' : (+tx[1]).toString(36))
 	parts = parts.join('.')
 	if (parts != '2...') url += '?' + parts
-	;(replace ? History.replaceState : History.pushState)(null, document.title, url);
+	;try{(replace ? History.replaceState : History.pushState)(null, document.title, url);}catch(e){}
 	state_lock = false;
 }
 

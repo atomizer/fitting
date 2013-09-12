@@ -56,6 +56,7 @@ body {
 }
 
 #mainbox {
+	font-size: 0; /* fix arbitrary inline-block spacing */
 	text-align: center;
 }
 
@@ -113,6 +114,18 @@ body {
 
 #ind0 { left: 2px; }
 #ind1 { right: 2px; }
+
+#sortbox {
+	display: inline-block;
+	font-size: 12px;
+	margin-left: 200px;
+	text-align: left;
+	width: 606px;
+}
+
+input[name='sort-dyes'] {
+	margin-left: 10px;
+}
 
 hr {
 	border: 1px solid #777;
