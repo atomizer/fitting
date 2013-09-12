@@ -290,8 +290,7 @@ $(function(){
 	preload.done(function() {
 		init_stage()
 	})
-	$("#toggle-main").change(function(){frame();});
-	$("#toggle-accessory").change(function(){frame();});
+	$("#toggle-main, #toggle-accessory").change(function(){frame();});
 	// url stuff
 	function statechanged(replace) {
 		var state = History.getState();
