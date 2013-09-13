@@ -87,7 +87,7 @@ function init_dyes() {
 		var k = +e.shiftKey
 		var offx = e.pageX - $t.offset().left
 		k = k || Math.round(offx / $t.width())
-		var id = $t.data('id')
+		var id = $t.attr('data-id')
 		tx[k] = (tx[k] == id) ? -1 : id;
 		newstate();
 	});
@@ -117,7 +117,7 @@ function init_dyes() {
 			// cloth
 			c.css('background-image', 'url(' + ca.toDataURL() + ')');
 		}
-		c.data('id', i);
+		c.attr('data-id', i);
 		c.attr('title', d[0]);
 		if (sz == 1) dyeels.push(c); else c.insertBefore(dyebox.find('br'));
 	}
@@ -373,7 +373,7 @@ function newstate(replace) {
 	parts.push(tx[1] == -1 ? '' : (+tx[1]).toString(36))
 	parts = parts.join('.')
 	if (parts != '2...') url += '?' + parts
-	;try{(replace ? History.replaceState : History.pushState)(null, document.title, url);}catch(e){}
+	;(replace ? History.replaceState : History.pushState)(null, document.title, url);
 	state_lock = false;
 }
 
