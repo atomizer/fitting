@@ -125,7 +125,10 @@ function init_dyes() {
 	dyebox.append(dyeels)
 }
 
-function sortDyes(dyes= $(".dye[style*='color']")) {
+function sortDyes(dyes) {
+	if(typeof(dyes)=="undefined"){
+		dyes = $(".dye[style*='color']");
+	}
 	var sort = "";
 	var sortTypes = $("input[name='sort-dyes']");
 	for (i=0; i < sortTypes.length; i++){
