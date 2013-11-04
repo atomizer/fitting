@@ -86,7 +86,7 @@ function init_dyes() {
 		var $t = $(this)
 		var offx = e.pageX - $t.offset().left
 		var k = Math.round(offx / $t.width())
-		var id = $t.data('id')
+		var id = $t.attr('data-id')
 		tx[k] = (tx[k] == id) ? -1 : id;
 		newstate();
 	});
