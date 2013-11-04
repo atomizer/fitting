@@ -84,10 +84,9 @@ function init_dyes() {
 
 	dyebox.on('click', '.dye', function(e) {
 		var $t = $(this)
-		var k = +e.shiftKey
 		var offx = e.pageX - $t.offset().left
-		k = k || Math.round(offx / $t.width())
-		var id = $t.attr('data-id')
+		var k = Math.round(offx / $t.width())
+		var id = $t.data('id')
 		tx[k] = (tx[k] == id) ? -1 : id;
 		newstate();
 	});
