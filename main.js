@@ -6,7 +6,7 @@ var DKEYS = [68, 83, 65, 87]; // dsaw
 var ready = false;
 
 var sprites = {};
-var stage, sctx, bc, bctx;
+var stage, sctx, bc, bctx, allstage, asctx, abc, abctx;
 var cur_class = 0x030e, cur_skin = -1, cur_dir = 0, cur_frame = 0;
 var tx = [-1, -1];
 var sc = 0;
@@ -88,7 +88,7 @@ function init_dyes() {
 		var k = Math.round(offx / $t.width())
 		var id = $t.attr('data-id')
 		tx[k] = (tx[k] == id) ? -1 : id;
-		newstate();
+		full_newstate();
 	});
 
 	var ca = document.createElement('canvas');
@@ -318,6 +318,110 @@ function frame(id, scale) {
 	}
 }
 
+function allframe(){
+	alert("hi");
+	scale = 5;
+	
+	c = abctx;
+	
+	c.clearRect(0, 0, abc.width, abc.height);
+	c.save();
+	c.translate(8, 8);
+	
+	function pasteStandingSprite(char_class, char_skin, offsetX, offsetY){
+		c.save();
+		c.translate(offsetX + 1, offsetY + 1); // move 1px to make room for border
+		
+		var i = ~char_skin ? char_skin : skins[char_class][1];
+		i *= 21;
+		var sh = ~char_skin ? 'playersSkins' : 'players';
+		var spr = sprites[sh][i];
+		var mask = sprites[sh + 'Mask'][i];
+		
+		// create character without gradient
+		for (var xi = 0, x = 0; xi < 8; x += scale, xi++){
+			for (var yi = 0, y = 0; yi < 8; y += scale, yi++){
+				if(!p_comp(spr, xi, yi, 3)) continue;
+				
+				// portrait
+				c.fillStyle = p_css(spr, xi, yi);
+				c.fillRect(x, y, scale, scale);
+				
+				// if there is something on mask, paint over
+				if (p_comp(mask, xi, yi, 3)) {
+					for (var ch = 0; ch < 2; ch++) { // 2 textures/channels
+						if (ch===0){
+							var paint = $("#toggle-main").is(":checked");
+						} else {
+							var paint = $("#toggle-accessory").is(":checked");
+						}
+						if (!~tx[ch] || !paint) continue;
+						var vol = p_comp(mask, xi, yi, ch);
+						if (!vol) continue;
+						c.fillStyle = dyes[tx[ch]][3];
+						c.fillRect(x, y, scale, scale);
+						c.fillStyle = 'rgba(0,0,0,' + ((255 - vol) / 255) + ')';
+						c.fillRect(x, y, scale, scale);
+					}
+				}
+					
+				// c.fillStyle = grad;
+				// c.globalCompositeOperation = 'substract';
+				// c.fillRect(x, y, scale, scale);
+				// c.restore();
+
+				// outline
+				c.save();
+				c.globalCompositeOperation = 'destination-over';
+				c.strokeRect(x-0.5, y-0.5, scale+1, scale+1);
+				c.restore();
+			}
+		}
+		
+		// gradient + blush (had to do by hand because there's no actual "substract" blending, d'oh)
+		var x0 = offsetX+9;
+		var y0 = offsetY+9;
+		var d = c.getImageData(x0, y0, scale*8, scale*8);
+		for (var x = 0; x < scale * 8; x++) {
+			for (var y = 0; y < scale * 8; y++) {
+				if (!p_comp(d, x, y, 3)) continue; // skip transparent
+				var pd = p_dict(d, x, y);
+				var gr = y < scale*3 ? 0 : 39 * (y - scale*3) / (scale*5);
+				pd[0] -= gr;
+				pd[1] -= gr;
+				pd[2] -= gr;
+				p_set(d, x, y, pd);
+			}
+		}
+		
+		c.putImageData(d, x0, y0);
+		
+		c.restore();
+	}
+	
+	// get sorted list of class IDs
+	var classIds = [];
+	for (obj in skins) {
+		classIds.push(obj);
+	}
+	classIds.sort(function(a,b){return a-b});
+	var classesCount = classIds.length;
+	
+	// create sprites for each class and skin
+	for (i = 0; i < classesCount; i++){
+		pasteStandingSprite(classIds[i], -1, ((42 * i) + (i * 6)), 0);
+		skinsCount = skins[classIds[i]][2].length;
+		for (j = 0; j < skinsCount; j++){
+			pasteStandingSprite(classIds[i], skins[classIds[i]][2][j][1], ((42 * i) + (i * 6)), ((42 * (j + 1)) + ((j + 1) * 6)));
+		}
+	}
+	
+	c.restore();
+	
+	asctx.clearRect(0, 0, allstage.width, allstage.height);
+	asctx.drawImage(abc, 0, 0, allstage.width, allstage.height);
+}
+
 
 
 // action
@@ -331,6 +435,13 @@ $(function(){
 	})
 	$("#toggle-main, #toggle-accessory").change(function(){frame();});
 	$("input[name='sort-dyes']").change(function(){replaceDyes(sortDyes());});
+	$("#toggle-allpreview").change(function(){
+		checked = $(this).prop("checked");
+		if(checked){
+			allframe();
+		}
+		$("#allstage").toggle(checked);
+	});
 	// url stuff
 	function statechanged(replace) {
 		var state = History.getState();
@@ -356,7 +467,7 @@ $(function(){
 		}
 		tx[0] = dyes[m[2]] ? +m[2] : -1
 		tx[1] = dyes[m[3]] ? +m[3] : -1
-		newstate(replace);
+		full_newstate(replace);
 	}
 	History.Adapter.bind(window, 'statechange', statechanged);
 	statechanged(true);
@@ -379,6 +490,18 @@ function newstate(replace) {
 	state_lock = false;
 }
 
+// update the all-character preview as well as the normal preview
+function full_newstate(replace){
+	newstate(replace);
+	/** TODO
+	    don't draw all sprites if panel is hidden, and make sure to redraw if panel is re-opened,
+		redraw if the dye/cloth toggle is used */
+	allframeRedraw = $("#toggle-allpreview").is(":checked");
+	if(allframeRedraw){
+		allframe();
+	}
+}
+
 function update_skins() {
 	var s = $('#skinsel')
 	s.find('div').remove()
@@ -397,6 +520,27 @@ function init_stage() {
 	sctx.mozImageSmoothingEnabled = false;
 	bc = document.createElement('canvas'), bctx = bc.getContext('2d');
 	bc.width = bc.height = stage.width;
+	
+	allstage = $('#allstage')[0], asctx = allstage.getContext('2d');
+	asctx.imageSmoothingEnabled = false;
+	asctx.webkitImageSmoothingEnabled = false;
+	asctx.mozImageSmoothingEnabled = false;
+	
+	// set width + height based on number of classes/skins
+	allstageWidth = 0;
+	allstageHeight = 0;
+	for(obj in skins){
+		allstageWidth++;
+		allstageHeight = Math.max(allstageHeight, (skins[obj][2].length + 1));
+	}
+	function charDimsToPixels(dimension){
+		return ((42 * dimension) + (6 * (dimension - 1)) + 16);
+	}
+	allstage.width = allstageWidth = charDimsToPixels(allstageWidth);
+	allstage.height = allstageHeight = charDimsToPixels(allstageHeight);
+	
+	abc = document.createElement('canvas'), abctx = abc.getContext('2d');
+	abc.width = allstage.width, abc.height = allstage.height;
 
 	init_dyes();
 
@@ -483,6 +627,7 @@ function init_stage() {
 	ready = true;
 	update_visuals();
 	frame();
+	allframe();
 }
 
 function update_sel(id, elid) {

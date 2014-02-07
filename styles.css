@@ -118,13 +118,36 @@ body {
 #sortbox {
 	display: inline-block;
 	font-size: 12px;
-	margin-left: 200px;
 	text-align: left;
 	width: 606px;
 }
 
 input[name='sort-dyes'] {
 	margin-left: 10px;
+}
+
+label[for='toggle-allpreview'] {
+	display: inline-block;
+	font-size: 12px;
+	text-align: left;
+	width: 200px;
+}
+
+#allpreview {
+	display: inline-block;
+	font-size: 12px;
+	margin: 5px 0;
+	text-align: left;
+	width: 806px;
+}
+
+#allstage{
+	border: 2px solid #777;
+	image-rendering: optimizeSpeed;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: optimize-contrast;
+	-ms-interpolation-mode: nearest-neighbor;
 }
 
 hr {
