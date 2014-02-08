@@ -86,7 +86,7 @@ function init_dyes() {
 		var $t = $(this)
 		var offx = e.pageX - $t.offset().left
 		var k = Math.round(offx / $t.width())
-		var id = $t.data('id')
+		var id = $t.attr('data-id')
 		tx[k] = (tx[k] == id) ? -1 : id;
 		newstate();
 	});
@@ -116,15 +116,55 @@ function init_dyes() {
 			// cloth
 			c.css('background-image', 'url(' + ca.toDataURL() + ')');
 		}
-		c.data('id', i);
+		c.attr('data-id', i);
 		c.attr('title', d[0]);
 		if (sz == 1) dyeels.push(c); else c.insertBefore(dyebox.find('br'));
 	}
-	dyeels.sort(function(a, b) {
-		var ca = a.data('color'), cb = b.data('color')
-		return (ca.lightness() - cb.lightness()) || (ca.hue() - cb.hue())
-	})
+	dyeels = sortDyes(dyeels);
 	dyebox.append(dyeels)
+}
+
+function sortDyes(dyes) {
+	if(typeof(dyes)=="undefined"){
+		dyes = $(".dye[style*='color']");
+	}
+	var sort = "";
+	var sortTypes = $("input[name='sort-dyes']");
+	for (i=0; i < sortTypes.length; i++){
+		if(sortTypes[i].checked){
+			sort = sortTypes[i].id.substring(5);
+		}
+	}
+	if (sort==="lightness") {
+		dyes.sort(function(a,b){
+			if(a.length){
+				a = a[0], b = b[0];
+			}
+			var ca = jQuery.Color(a.style.backgroundColor), cb = jQuery.Color(b.style.backgroundColor);
+			return (ca.lightness() - cb.lightness()) || (ca.hue() - cb.hue());
+		});
+	} else if (sort==="hue") {
+		dyes.sort(function(a,b){
+			if(a.length){
+				a = a[0], b = b[0];
+			}
+			var ca = jQuery.Color(a.style.backgroundColor), cb = jQuery.Color(b.style.backgroundColor);
+			return (ca.hue() - cb.hue()) || (ca.lightness() - cb.lightness());
+		});
+	} else if (sort==="name") {
+		dyes.sort(function(a,b){
+			if(a.length){
+				a = a[0], b = b[0];
+			}
+			return a.getAttribute('title') > b.getAttribute('title');
+		});
+	}
+	return dyes;
+}
+
+function replaceDyes(newDyes){
+	$(".dye[style*='color']").remove();
+	$("#dyebox").append(newDyes);
 }
 
 
@@ -206,7 +246,12 @@ function frame(id, scale) {
 				// if there is something on mask, paint over
 				if (p_comp(mask, xi, yi, 3)) {
 					for (var ch = 0; ch < 2; ch++) { // 2 textures/channels
-						if (!~tx[ch]) continue;
+						if (ch===0){
+							var paint = $("#toggle-main").is(":checked");
+						} else {
+							var paint = $("#toggle-accessory").is(":checked");
+						}
+						if (!~tx[ch] || !paint) continue;
 						var vol = p_comp(mask, xi, yi, ch);
 						if (!vol) continue;
 						c.fillStyle = dyes[tx[ch]][3];
@@ -284,6 +329,8 @@ $(function(){
 	preload.done(function() {
 		init_stage()
 	})
+	$("#toggle-main, #toggle-accessory").change(function(){frame();});
+	$("input[name='sort-dyes']").change(function(){replaceDyes(sortDyes());});
 	// url stuff
 	function statechanged(replace) {
 		var state = History.getState();
