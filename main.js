@@ -88,7 +88,7 @@ function init_dyes() {
 		var k = Math.round(offx / $t.width())
 		var id = $t.attr('data-id')
 		tx[k] = (tx[k] == id) ? -1 : id;
-		newstate();
+		full_newstate();
 	});
 
 	var ca = document.createElement('canvas');
@@ -324,7 +324,7 @@ function allframe(){
 	
 	c = abctx;
 	
-	c.clearRect(0, 0, abc.width, abc.height);
+	c.clearRect(0, 0, c.canvas.width, c.canvas.height);
 	c.save();
 	c.translate(8, 8);
 	
@@ -431,7 +431,8 @@ var preload = load_sheets()
 $(function(){
 	// ensure that dom is ready before calling init_stage, but allow preload to start earlier
 	preload.done(function() {
-		init_stage()
+		init_stage();
+		statechanged(true);
 	})
 	$("#toggle-main, #toggle-accessory").change(function(){frame();allframe();});
 	$("input[name='sort-dyes']").change(function(){replaceDyes(sortDyes());});
@@ -470,7 +471,6 @@ $(function(){
 		full_newstate(replace);
 	}
 	History.Adapter.bind(window, 'statechange', statechanged);
-	statechanged(true);
 });
 
 var state_lock = false; // against race conditions
@@ -492,10 +492,8 @@ function newstate(replace) {
 
 // update the all-character preview as well as the normal preview
 function full_newstate(replace){
+	if (state_lock) return;
 	newstate(replace);
-	/** TODO
-	    don't draw all sprites if panel is hidden, and make sure to redraw if panel is re-opened,
-		redraw if the dye/cloth toggle is used */
 	allframeRedraw = $("#toggle-allpreview").is(":checked");
 	if(allframeRedraw){
 		allframe();
@@ -625,9 +623,6 @@ function init_stage() {
 	$(document).mousedown(function(e) { e.preventDefault(); });
 
 	ready = true;
-	update_visuals();
-	frame();
-	allframe();
 }
 
 function update_sel(id, elid) {
