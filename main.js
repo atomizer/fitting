@@ -433,7 +433,7 @@ $(function(){
 	preload.done(function() {
 		init_stage()
 	})
-	$("#toggle-main, #toggle-accessory").change(function(){frame();});
+	$("#toggle-main, #toggle-accessory").change(function(){frame();allframe();});
 	$("input[name='sort-dyes']").change(function(){replaceDyes(sortDyes());});
 	$("#toggle-allpreview").change(function(){
 		checked = $(this).prop("checked");
