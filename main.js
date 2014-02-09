@@ -156,7 +156,8 @@ function sortDyes(dyes) {
 			if(a.length){
 				a = a[0], b = b[0];
 			}
-			return a.getAttribute('title') > b.getAttribute('title');
+			aName = a.getAttribute('title'), bName = b.getAttribute('title');
+			return (aName < bName) ? -1 : (aName > bName) ? 1 : 0;
 		});
 	}
 	return dyes;
