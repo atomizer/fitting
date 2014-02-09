@@ -88,7 +88,7 @@ function init_dyes() {
 		var k = Math.round(offx / $t.width())
 		var id = $t.attr('data-id')
 		tx[k] = (tx[k] == id) ? -1 : id;
-		full_newstate();
+		newstate();
 	});
 
 	var ca = document.createElement('canvas');
