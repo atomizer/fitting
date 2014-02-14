@@ -130,7 +130,7 @@ function sortDyes(dyes) {
 	}
 	var sort = "";
 	var sortTypes = $("input[name='sort-dyes']");
-	for (i=0; i < sortTypes.length; i++){
+	for (var i = 0; i < sortTypes.length; i++){
 		if(sortTypes[i].checked){
 			sort = sortTypes[i].id.substring(5);
 		}
@@ -195,46 +195,38 @@ function p_set(s, x, y, d) {
 	for (var i = 0; i < 4; i++) s.data[offset + i] = d[i];
 }
 
-var ftimer
-
-function frame(id, scale) {
-	if (ftimer) return
-	ftimer = 1
-	var cur_frame = 0, blush = 0;
-
-	if (walking || attacking) {
-		cur_frame = (Date.now() - d_wstart) % WALK_PERIOD;
-		cur_frame = (cur_frame / WALK_PERIOD < 0.5) ? 1 : 2;
-		if (attacking) cur_frame += 2;
-	}
-	if (blushing) {
-		blush = (Date.now() - d_bstart) % BLUSH_PERIOD;
-		blush /= BLUSH_PERIOD;
-		blush = 127 * (1 - 2 * Math.abs(Math.asin(2 * blush - 1) / Math.PI));
-	}
-
-	id = id || DFRAMES[cur_dir][cur_frame] || 0;
+// returns 3-by-1 ImageData of a character (126 x 42 with scale=5)
+function charImage(id, scale, direction, blush, char_class, char_skin){
+	id = id || 0;
 	scale = scale || 5;
-
-	var c = bctx;
-
+	direction = direction || cur_dir;
+	blush = blush || 0;
+	char_class = char_class || cur_class;
+	char_skin = (typeof(char_skin)!=="undefined") ? char_skin : cur_skin;
+	
+	var temp = document.createElement('canvas');
+	temp.width = ((scale * 8 + 2) * 3), temp.height = (scale * 8 + 2);
+	var c = temp.getContext('2d');
+	
 	c.save();
-	c.clearRect(0, 0, bc.width, bc.height);
-	c.translate(bc.width/2, bc.height/2);
-
-	c.translate(-4 * scale, -4 * scale);
-
+	c.translate(42, 0);
+	
 	// var grad = c.createLinearGradient(0, scale*3, 0, scale*8);
 	// grad.addColorStop(0, 'black');
 	// grad.addColorStop(1, 'rgba(0,0,0,0.15)');
-
-	function pastesprite(id) {
-		var i = ~cur_skin ? cur_skin : skins[cur_class][1]
+	
+	// draws using c with its current translation as the upper-left corner for the sprite
+	// needs x to be set before drawing (attacking sprites have offsets)
+	function pastesprite(id){
+		c.save();
+		c.translate(1, 1); // 1px for border
+		
+		var i = (char_skin !== -1) ? char_skin : skins[char_class][1];
 		i = i * 21 + id;
-		var sh = ~cur_skin ? 'playersSkins' : 'players'
+		var sh = (char_skin !== -1) ? 'playersSkins' : 'players';
 		var spr = sprites[sh][i];
 		var mask = sprites[sh + 'Mask'][i];
-		var xd = 1 - (cur_dir == 2) * 2;
+		var xd = 1 - (direction == 2) * 2;
 		for (var xi = 0; xi < 8; x += scale * xd, xi++) {
 			for (var yi = 0, y = 0; yi < 8; y += scale, yi++) {
 
@@ -274,148 +266,121 @@ function frame(id, scale) {
 				c.restore();
 			}
 		}
+		c.restore();
 	}
-	var x = (cur_dir == 2) ? scale * 7 : 0;
+	x = (direction == 2) ? scale * 7 : 0;
 	pastesprite(id);
-	if (attacking && cur_frame == 4) { // attacking, frame 2
-		x = (cur_dir == 2) ? -scale : scale * 8;
+	if (cur_frame == 4) { // attacking, frame 2
+		x = (direction == 2) ? -scale : scale * 8;
 		pastesprite(id + 1);
 	}
 	c.restore();
-
+	
 	// gradient + blush (had to do by hand because there's no actual "substract" blending, d'oh)
-	var x0 = bc.width/2 - scale*12; // gaaaaaaaahhhh
-	var y0 = bc.height/2 - scale*4;
-	var d = c.getImageData(x0, y0, scale*24, scale*8);
-	for (var x = 0; x < scale * 24; x++) {
-		for (var y = 0; y < scale * 8; y++) {
+	var d = c.getImageData(0, 0, c.canvas.width, c.canvas.height);
+	for (var x = 0; x < c.canvas.width; x++) {
+		for (var y = 0; y < c.canvas.height; y++) {
 			if (!p_comp(d, x, y, 3)) continue; // skip transparent
 			var pd = p_dict(d, x, y);
-			var gr = y < scale*3 ? 0 : 39 * (y - scale*3) / (scale*5);
+			var gr = (y - 1) < (scale*3) ? 0 : (39 * (y - scale*3) / (scale*5));
 			pd[0] += blush; pd[0] -= gr;
 			pd[1] -= blush + gr;
 			pd[2] -= blush + gr;
 			p_set(d, x, y, pd);
 		}
 	}
-	c.putImageData(d, x0, y0);
-	sctx.clearRect(0, 0, stage.width, stage.height)
-	sctx.drawImage(bc, 0, 0, stage.width, stage.height)
+	c.putImageData(d, 0, 0);
+	
+	return c.getImageData(0, 0, c.canvas.width, c.canvas.height);
+}
 
+var ftimer
+
+function frame(id, scale) {
+	if (ftimer) return;
+	ftimer = 1;
+	cur_frame = 0;
+	var blush = 0;
+	
+	if (walking || attacking) {
+		cur_frame = (Date.now() - d_wstart) % WALK_PERIOD;
+		cur_frame = (cur_frame / WALK_PERIOD < 0.5) ? 1 : 2;
+		if (attacking) cur_frame += 2;
+	}
+	if (blushing) {
+		blush = (Date.now() - d_bstart) % BLUSH_PERIOD;
+		blush /= BLUSH_PERIOD;
+		blush = 127 * (1 - 2 * Math.abs(Math.asin(2 * blush - 1) / Math.PI));
+	}
+	
+	id = id || DFRAMES[cur_dir][cur_frame] || 0;
+	scale = scale || 5;
+	
+	var c = bctx;
+	c.clearRect(0, 0, bc.width, bc.height);
+	var image = charImage(id, scale, cur_dir, blush);
+	c.putImageData(image, bc.width/2 - image.width/2, bc.height/2 - image.height/2);
+	
+	sctx.clearRect(0, 0, stage.width, stage.height);
+	sctx.drawImage(bc, 0, 0, stage.width, stage.height);
+	
 	// shadow - iffy, no chrome
 /*	c.save();
 	c.shadowBlur = 10;
 	c.shadowColor = 'black';
 	c.drawImage(stage, 0, 0);
 	c.restore();*/
-
+	
 	if (walking || blushing) {
 		window.requestAnimFrame(function() {
-			ftimer = 0
-			frame()
+			ftimer = 0;
+			frame();
 		})
 	} else {
-		ftimer = 0
+		ftimer = 0;
 	}
 }
 
-function allframe(){
-	scale = 5;
+function allframe(scale){
+	scale = scale || 5;
 	
-	c = abctx;
-	
+	var c = abctx;
 	c.clearRect(0, 0, c.canvas.width, c.canvas.height);
-	c.save();
-	c.translate(8, 8);
-	
-	function pasteStandingSprite(char_class, char_skin, offsetX, offsetY){
-		c.save();
-		c.translate(offsetX + 1, offsetY + 1); // move 1px to make room for border
-		
-		var i = ~char_skin ? char_skin : skins[char_class][1];
-		i *= 21;
-		var sh = ~char_skin ? 'playersSkins' : 'players';
-		var spr = sprites[sh][i];
-		var mask = sprites[sh + 'Mask'][i];
-		
-		// create character without gradient
-		for (var xi = 0, x = 0; xi < 8; x += scale, xi++){
-			for (var yi = 0, y = 0; yi < 8; y += scale, yi++){
-				if(!p_comp(spr, xi, yi, 3)) continue;
-				
-				// portrait
-				c.fillStyle = p_css(spr, xi, yi);
-				c.fillRect(x, y, scale, scale);
-				
-				// if there is something on mask, paint over
-				if (p_comp(mask, xi, yi, 3)) {
-					for (var ch = 0; ch < 2; ch++) { // 2 textures/channels
-						if (ch===0){
-							var paint = $("#toggle-main").is(":checked");
-						} else {
-							var paint = $("#toggle-accessory").is(":checked");
-						}
-						if (!~tx[ch] || !paint) continue;
-						var vol = p_comp(mask, xi, yi, ch);
-						if (!vol) continue;
-						c.fillStyle = dyes[tx[ch]][3];
-						c.fillRect(x, y, scale, scale);
-						c.fillStyle = 'rgba(0,0,0,' + ((255 - vol) / 255) + ')';
-						c.fillRect(x, y, scale, scale);
-					}
-				}
-					
-				// c.fillStyle = grad;
-				// c.globalCompositeOperation = 'substract';
-				// c.fillRect(x, y, scale, scale);
-				// c.restore();
-
-				// outline
-				c.save();
-				c.globalCompositeOperation = 'destination-over';
-				c.strokeRect(x-0.5, y-0.5, scale+1, scale+1);
-				c.restore();
-			}
-		}
-		
-		// gradient + blush (had to do by hand because there's no actual "substract" blending, d'oh)
-		var x0 = offsetX+9;
-		var y0 = offsetY+9;
-		var d = c.getImageData(x0, y0, scale*8, scale*8);
-		for (var x = 0; x < scale * 8; x++) {
-			for (var y = 0; y < scale * 8; y++) {
-				if (!p_comp(d, x, y, 3)) continue; // skip transparent
-				var pd = p_dict(d, x, y);
-				var gr = y < scale*3 ? 0 : 39 * (y - scale*3) / (scale*5);
-				pd[0] -= gr;
-				pd[1] -= gr;
-				pd[2] -= gr;
-				p_set(d, x, y, pd);
-			}
-		}
-		
-		c.putImageData(d, x0, y0);
-		
-		c.restore();
-	}
 	
 	// get sorted list of class IDs
 	var classIds = [];
-	for (obj in skins) {
+	for (var obj in skins) {
 		classIds.push(obj);
 	}
 	classIds.sort(function(a,b){return a-b});
 	var classesCount = classIds.length;
 	
 	// create sprites for each class and skin
-	for (i = 0; i < classesCount; i++){
-		pasteStandingSprite(classIds[i], -1, ((42 * i) + (i * 6)), 0);
-		skinsCount = skins[classIds[i]][2].length;
-		for (j = 0; j < skinsCount; j++){
-			pasteStandingSprite(classIds[i], skins[classIds[i]][2][j][1], ((42 * i) + (i * 6)), ((42 * (j + 1)) + ((j + 1) * 6)));
+	var currentChar;
+	var x0 = 8, y0 = 8;
+	c.save();
+	c.globalCompositeOperation = 'destination-over';
+	for (var i = 0; i < classesCount; i++){
+		currentChar = charImage(0, scale, 0, 0, classIds[i], -1);
+		var w = currentChar.width/3, h = currentChar.height;
+		c.putImageData(
+			currentChar,
+			((w * (i - 1)) + (i * 6)) + x0,
+			y0,
+			w, 0, w, h
+		);
+		var skinsCount = skins[classIds[i]][2].length;
+		for (var j = 0; j < skinsCount; j++){
+			currentChar = charImage(0, scale, 0, 0, classIds[i], skins[classIds[i]][2][j][1]);
+			var w = currentChar.width/3, h = currentChar.height;
+			c.putImageData(
+				currentChar,
+				((w * (i - 1)) + (i * 6)) + x0,
+				((h * (j + 1)) + ((j + 1) * 6)) + y0,
+				w, 0, w, h
+			);
 		}
 	}
-	
 	c.restore();
 	
 	asctx.clearRect(0, 0, allstage.width, allstage.height);
@@ -494,7 +459,7 @@ function newstate(replace) {
 function full_newstate(replace){
 	if (state_lock) return;
 	newstate(replace);
-	allframeRedraw = $("#toggle-allpreview").is(":checked");
+	var allframeRedraw = $("#toggle-allpreview").is(":checked");
 	if(allframeRedraw){
 		allframe();
 	}
@@ -525,9 +490,9 @@ function init_stage() {
 	asctx.mozImageSmoothingEnabled = false;
 	
 	// set width + height based on number of classes/skins
-	allstageWidth = 0;
-	allstageHeight = 0;
-	for(obj in skins){
+	var allstageWidth = 0;
+	var allstageHeight = 0;
+	for(var obj in skins){
 		allstageWidth++;
 		allstageHeight = Math.max(allstageHeight, (skins[obj][2].length + 1));
 	}
