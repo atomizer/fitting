@@ -1,4 +1,4 @@
-/*global dyes sheets skins History */
+/*global dyes, sheets, skins, History */
 
 var DFRAMES = [[0, 1, 0, 4, 5], [7, 8, 9, 11, 12], [0, 1, 0, 4, 5], [14, 15, 16, 18, 19]];
 var DKEYS = [68, 83, 65, 87]; // dsaw
@@ -57,7 +57,8 @@ function load_sheets() {
 
 	function loaded(img, name, sz) {
 		var c = document.createElement('canvas')
-		c.width = img.width; c.height = img.height
+		c.width = img.width;
+		c.height = img.height;
 		var ctx = c.getContext('2d')
 		ctx.drawImage(img, 0, 0)
 		if (!sz) {
@@ -103,7 +104,8 @@ function init_dyes() {
 			// cloth
 			var id = d[2]
 			var spr = sprites[sz].getImageData(sz * (id & 0xf), sz * (id >> 4), sz, sz)
-			ca.width = sz; ca.height = sz;
+			ca.width = sz;
+			ca.height = sz;
 			cactx.putImageData(spr, 0, 0);
 			d[3] = cactx.createPattern(ca, 'repeat');
 		}
@@ -135,32 +137,27 @@ function sortDyes(dyes) {
 			sort = sortTypes[i].id.substring(5);
 		}
 	}
-	if (sort==="lightness") {
-		dyes.sort(function(a,b){
-			if(a.length){
-				a = a[0], b = b[0];
-			}
-			var ca = jQuery.Color(a.style.backgroundColor), cb = jQuery.Color(b.style.backgroundColor);
-			return (ca.lightness() - cb.lightness()) || (ca.hue() - cb.hue());
-		});
-	} else if (sort==="hue") {
-		dyes.sort(function(a,b){
-			if(a.length){
-				a = a[0], b = b[0];
-			}
-			var ca = jQuery.Color(a.style.backgroundColor), cb = jQuery.Color(b.style.backgroundColor);
-			return (ca.hue() - cb.hue()) || (ca.lightness() - cb.lightness());
-		});
-	} else if (sort==="name") {
-		dyes.sort(function(a,b){
-			if(a.length){
-				a = a[0], b = b[0];
-			}
-			aName = a.getAttribute('title'), bName = b.getAttribute('title');
+	dyes.sort(function(a,b){
+		if(a.length){
+			a = a[0];
+			b = b[0];
+		}
+		if (sort == "name") {
+			var aName = a.getAttribute('title')
+			var bName = b.getAttribute('title')
 			return (aName < bName) ? -1 : (aName > bName) ? 1 : 0;
-		});
-	}
-	return dyes;
+		}
+		var ca = jQuery.Color(a.style.backgroundColor)
+		var cb = jQuery.Color(b.style.backgroundColor)
+		if (sort == "lightness") {
+			return (ca.lightness() - cb.lightness()) || (ca.hue() - cb.hue());
+		}
+		if (sort == "hue") {
+			return (ca.hue() - cb.hue()) || (ca.lightness() - cb.lightness());
+		}
+	})
+
+	return dyes
 }
 
 function replaceDyes(newDyes){
@@ -205,15 +202,17 @@ function charImage(id, scale, direction, blush, char_class, char_skin){
 	char_skin = (typeof(char_skin)!=="undefined") ? char_skin : cur_skin;
 	
 	var temp = document.createElement('canvas');
-	temp.width = ((scale * 8 + 2) * 3), temp.height = (scale * 8 + 2);
+	temp.width = (scale * 8 + 2) * 3;
+	temp.height = scale * 8 + 2;
 	var c = temp.getContext('2d');
 	
 	c.save();
 	c.translate(42, 0);
-	
-	// var grad = c.createLinearGradient(0, scale*3, 0, scale*8);
-	// grad.addColorStop(0, 'black');
-	// grad.addColorStop(1, 'rgba(0,0,0,0.15)');
+
+	var ischecked = [
+		$("#toggle-main").is(":checked"),
+		$("#toggle-accessory").is(":checked")
+	]
 	
 	// draws using c with its current translation as the upper-left corner for the sprite
 	// needs x to be set before drawing (attacking sprites have offsets)
@@ -239,12 +238,7 @@ function charImage(id, scale, direction, blush, char_class, char_skin){
 				// if there is something on mask, paint over
 				if (p_comp(mask, xi, yi, 3)) {
 					for (var ch = 0; ch < 2; ch++) { // 2 textures/channels
-						if (ch===0){
-							var paint = $("#toggle-main").is(":checked");
-						} else {
-							var paint = $("#toggle-accessory").is(":checked");
-						}
-						if (!~tx[ch] || !paint) continue;
+						if (!~tx[ch] || !ischecked[ch]) continue;
 						var vol = p_comp(mask, xi, yi, ch);
 						if (!vol) continue;
 						c.fillStyle = dyes[tx[ch]][3];
@@ -253,11 +247,6 @@ function charImage(id, scale, direction, blush, char_class, char_skin){
 						c.fillRect(x, y, scale, scale);
 					}
 				}
-
-				// c.fillStyle = grad;
-				// c.globalCompositeOperation = 'substract';
-				// c.fillRect(x, y, scale, scale);
-				// c.restore();
 
 				// outline
 				c.save();
@@ -283,7 +272,7 @@ function charImage(id, scale, direction, blush, char_class, char_skin){
 			if (!p_comp(d, x, y, 3)) continue; // skip transparent
 			var pd = p_dict(d, x, y);
 			var gr = (y - 1) < (scale*3) ? 0 : (39 * (y - scale*3) / (scale*5));
-			pd[0] += blush; pd[0] -= gr;
+			pd[0] += blush - gr;
 			pd[1] -= blush + gr;
 			pd[2] -= blush + gr;
 			p_set(d, x, y, pd);
@@ -323,13 +312,6 @@ function frame(id, scale) {
 	
 	sctx.clearRect(0, 0, stage.width, stage.height);
 	sctx.drawImage(bc, 0, 0, stage.width, stage.height);
-	
-	// shadow - iffy, no chrome
-/*	c.save();
-	c.shadowBlur = 10;
-	c.shadowColor = 'black';
-	c.drawImage(stage, 0, 0);
-	c.restore();*/
 	
 	if (walking || blushing) {
 		window.requestAnimFrame(function() {
@@ -372,7 +354,8 @@ function allframe(scale){
 		var skinsCount = skins[classIds[i]][2].length;
 		for (var j = 0; j < skinsCount; j++){
 			currentChar = charImage(0, scale, 0, 0, classIds[i], skins[classIds[i]][2][j][1]);
-			var w = currentChar.width/3, h = currentChar.height;
+			w = currentChar.width/3
+			h = currentChar.height;
 			c.putImageData(
 				currentChar,
 				((w * (i - 1)) + (i * 6)) + x0,
@@ -402,7 +385,7 @@ $(function(){
 	$("#toggle-main, #toggle-accessory").change(function(){frame();allframe();});
 	$("input[name='sort-dyes']").change(function(){replaceDyes(sortDyes());});
 	$("#toggle-allpreview").change(function(){
-		checked = $(this).prop("checked");
+		var checked = $(this).prop("checked");
 		if(checked){
 			allframe();
 		}
@@ -477,18 +460,18 @@ function update_skins() {
 }
 
 function init_stage() {
-	stage = $('#stage')[0], sctx = stage.getContext('2d');
+	stage = $('#stage')[0]
+	sctx = stage.getContext('2d');
 	sctx.imageSmoothingEnabled = false;
 	sctx.webkitImageSmoothingEnabled = false;
 	sctx.mozImageSmoothingEnabled = false;
-	bc = document.createElement('canvas'), bctx = bc.getContext('2d');
+	bc = document.createElement('canvas');
+	bctx = bc.getContext('2d');
 	bc.width = bc.height = stage.width;
 	
-	allstage = $('#allstage')[0], asctx = allstage.getContext('2d');
-	asctx.imageSmoothingEnabled = false;
-	asctx.webkitImageSmoothingEnabled = false;
-	asctx.mozImageSmoothingEnabled = false;
-	
+	allstage = $('#allstage')[0]
+	asctx = allstage.getContext('2d');
+
 	// set width + height based on number of classes/skins
 	var allstageWidth = 0;
 	var allstageHeight = 0;
@@ -502,8 +485,10 @@ function init_stage() {
 	allstage.width = allstageWidth = charDimsToPixels(allstageWidth);
 	allstage.height = allstageHeight = charDimsToPixels(allstageHeight);
 	
-	abc = document.createElement('canvas'), abctx = abc.getContext('2d');
-	abc.width = allstage.width, abc.height = allstage.height;
+	abc = document.createElement('canvas');
+	abctx = abc.getContext('2d');
+	abc.width = allstage.width;
+	abc.height = allstage.height;
 
 	init_dyes();
 
