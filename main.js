@@ -196,10 +196,10 @@ function p_set(s, x, y, d) {
 function charImage(id, scale, direction, blush, char_class, char_skin){
 	id = id || 0;
 	scale = scale || 5;
-	direction = direction || cur_dir;
+	direction = typeof direction != 'undefined' ? direction : cur_dir;
 	blush = blush || 0;
 	char_class = char_class || cur_class;
-	char_skin = (typeof(char_skin)!=="undefined") ? char_skin : cur_skin;
+	char_skin = typeof char_skin != 'undefined' ? char_skin : cur_skin;
 	
 	var temp = document.createElement('canvas');
 	temp.width = (scale * 8 + 2) * 3;
