@@ -558,6 +558,26 @@ function init_stage() {
 		frame();
 	});
 
+	$('#allstage').click(function(e) {
+		var $t = $(this)
+		var dx = e.pageX - $t.offset().left
+		var dy = e.pageY - $t.offset().top
+		dx = Math.floor((dx - 5) / 48)
+		dy = Math.floor((dy - 5) / 48)
+		for (var k in skins) {
+			if (skins[k][1] != dx) continue
+			var sk = -1
+			if (dy > 0) {
+				sk = skins[k][2][dy - 1]
+				if (!sk) return
+			}
+			cur_class = k
+			cur_skin = dy ? sk[1] : -1
+			newstate()
+			return
+		}
+	})
+
 	$('#dyebox').tooltip({
 		position: {
 			my: 'center top',
