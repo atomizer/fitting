@@ -9,7 +9,7 @@ var sprites = {};
 var stage, sctx, bc, bctx, allstage, asctx, abc, abctx;
 var cur_class = 0x030e, cur_skin = -1, cur_dir = 0, cur_frame = 0;
 var tx = [-1, -1];
-var sc = 0;
+var zoom = 1;
 
 var BLUSH_PERIOD = 600
 var WALK_PERIOD = 300
@@ -467,7 +467,7 @@ function init_stage() {
 	sctx.mozImageSmoothingEnabled = false;
 	bc = document.createElement('canvas');
 	bctx = bc.getContext('2d');
-	bc.width = bc.height = stage.width;
+	bc.width = bc.height = stage.width / zoom;
 	
 	allstage = $('#allstage')[0]
 	asctx = allstage.getContext('2d');
@@ -552,8 +552,8 @@ function init_stage() {
 			blushing = !blushing;
 			d_bstart = Date.now();
 		} else {
-			sc = +!sc;
-			bc.width = bc.height = 180 / (sc + 1)
+			zoom = zoom == 3 ? 1 : zoom + 1;
+			bc.width = bc.height = stage.width / zoom
 		}
 		frame();
 	});
