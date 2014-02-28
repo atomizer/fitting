@@ -522,7 +522,7 @@ function init_stage() {
 				var r = Math.floor(Math.random() * dlen);
 				tx[i] = $(dyes[r]).data('id');
 			}
-			newstate();
+			full_newstate();
 			return;
 		}
 		if (!~dir) return;
