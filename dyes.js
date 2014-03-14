@@ -213,5 +213,7 @@ var dyes = {
 582: ['Bright Floral', 5, 6],
 583: ['Clanranald', 10, 43],
 584: ['American Flag', 10, 44],
-585: ['Relief', 9, 13]
+585: ['Relief', 9, 13],
+586: ['Intense Clovers', 10, 45],
+587: ['Celtic Knot', 10, 46]
 }
