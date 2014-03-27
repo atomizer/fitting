@@ -215,5 +215,9 @@ var dyes = {
 584: ['American Flag', 10, 44],
 585: ['Relief', 9, 13],
 586: ['Intense Clovers', 10, 45],
-587: ['Celtic Knot', 10, 46]
+587: ['Celtic Knot', 10, 46],
+588: ['Flame', 10, 47],
+589: ['Heavy Chainmail', 10, 48],
+590: ['Cheetah Print', 10, 49],
+591: ['Zebra Print', 10, 50]
 }
