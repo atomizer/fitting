@@ -39,12 +39,22 @@
 		</div>
 		<div id="stagebox">
 			<canvas id="stage" width="180" height="180"></canvas>
-			<div>Main: <span id="desc0" class="dyedesc"></span></div>
-			<div>Accessory: <span id="desc1" class="dyedesc"></span></div>
+			<label for="toggle-main"><input type="checkbox" id="toggle-main" checked>Main: <span id="desc0" class="dyedesc"></span></label>
+			<label for="toggle-accessory"><input type="checkbox" id="toggle-accessory" checked>Accessory: <span id="desc1" class="dyedesc"></span></label>
 		</div>
 		<div id="ind0" style="display: none;">M</div>
 		<div id="ind1" style="display: none;">A</div>
 		<div id="dyebox"><br></div>
+		<label for="toggle-allpreview"><input type="checkbox" id="toggle-allpreview"> All-at-once preview</label>
+		<div id="sortbox">
+			Sort dyes:
+			<label for="sort-lightness"><input type="radio" id="sort-lightness" name="sort-dyes" checked> Lightness</label>
+			<label for="sort-hue"><input type="radio" id="sort-hue" name="sort-dyes"> Hue</label>
+			<label for="sort-name"><input type="radio" id="sort-name" name="sort-dyes"> Name</label>
+		</div>
+		<div id="allpreview">
+			<canvas id="allstage" style="display: none;"></canvas>
+		</div>
 	</div>
 	<hr>
 	<ul>
@@ -52,9 +62,10 @@
 		<li><strong>click</strong> on the <i>left side</i> of a sample to select main dye, on the <i>right side</i> to select accessory dye</li>
 		<li>hit <strong>R</strong> for random combo</li>
 		<li>use <strong>WASD</strong> to rotate the character, combine with <strong>shift</strong> to attack</li>
-		<li><strong>click</strong> the character to toggle 2x zoom</li>
+		<li><strong>click</strong> the character to toggle 2x  and 3x zoom</li>
 		<li><strong>shift-click</strong> the character to toggle low HP state</li>
-		<li>post your feedback <a href="http://forums.wildshadow.com/node/14889" target="_blank">here</a></li>
+		<li><strong>click</strong> on a character in the all-at-once preview to bring it to the main view</li>
+		<li>post your feedback on <a href="http://community.kabam.com/forums/showthread.php?200194-RotMG-Fitting-Room" target="_blank">forums</a> and on <a href="https://github.com/atomizer/fitting/issues" target="_blank">GitHub</a></li>
 	</ul>
 </div>
 </body>
