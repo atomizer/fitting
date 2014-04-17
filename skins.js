@@ -11,6 +11,6 @@ skins = {
 802: ['Huntress', 9, [['Amazonian', 9], ['Scarlett', 48], ['Artemis', 53]]],
 803: ['Mystic', 10, [['Seer', 10]]],
 804: ['Trickster', 11, [['Loki', 11], ['Deadly Vixen', 49]]],
-805: ['Sorcerer', 12, [['Warlock', 12], ['Sorceress', 47]]],
+805: ['Sorcerer', 12, [['Warlock', 12], ['Sorceress', 47], ['Stanley the Spring Bunny', 54]]],
 806: ['Ninja', 13, [['Shadow', 13], ['Slime Ninja', 22]]],
 }

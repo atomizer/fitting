@@ -218,6 +218,8 @@ var dyes = {
 587: ['Celtic Knot', 10, 46],
 588: ['Flame', 10, 47],
 589: ['Heavy Chainmail', 10, 48],
-590: ['Cheetah Print', 10, 49],
-591: ['Zebra Print', 10, 50]
+590: ['Leopard Print', 10, 49],
+591: ['Zebra Print', 10, 50],
+592: ['Colored Egg', 10, 51],
+593: ['Spring', 10, 52]
 }
