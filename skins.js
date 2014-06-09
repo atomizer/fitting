@@ -8,9 +8,9 @@ skins = {
 799: ['Paladin', 6, [['Decorated Paladin', 6], ['Founding Father', 20], ['Bashing Bride', 51]]],
 800: ['Assassin', 7, [['Stealth', 7], ['Agent', 36]]],
 801: ['Necromancer', 8, [['Death Mage', 8], ['Witch Doctor', 46]]],
-802: ['Huntress', 9, [['Amazonian', 9], ['Scarlett', 48], ['Artemis', 53]]],
+802: ['Huntress', 9, [['Amazonian', 9], ['Scarlett', 48], ['Artemis', 53], ['Nexus no Miko', 68]]],
 803: ['Mystic', 10, [['Seer', 10]]],
-804: ['Trickster', 11, [['Loki', 11], ['Deadly Vixen', 49]]],
+804: ['Trickster', 11, [['Loki', 11], ['Deadly Vixen', 49], ['Drow Trickster', 70]]],
 805: ['Sorcerer', 12, [['Warlock', 12], ['Sorceress', 47], ['Stanley the Spring Bunny', 54]]],
 806: ['Ninja', 13, [['Shadow', 13], ['Slime Ninja', 22]]],
 }

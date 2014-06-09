@@ -221,5 +221,8 @@ var dyes = {
 590: ['Leopard Print', 10, 49],
 591: ['Zebra Print', 10, 50],
 592: ['Colored Egg', 10, 51],
-593: ['Spring', 10, 52]
+593: ['Spring', 10, 52],
+594: ['Hibiscus Beach Wrap', 10, 53],
+595: ['Blue Camo', 10, 54],
+596: ['Sunburst', 10, 55]
 }
