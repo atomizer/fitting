@@ -224,5 +224,10 @@ var dyes = {
 593: ['Spring', 10, 52],
 594: ['Hibiscus Beach Wrap', 10, 53],
 595: ['Blue Camo', 10, 54],
-596: ['Sunburst', 10, 55]
+596: ['Sunburst', 10, 55],
+597: ['Ivory Dragon Scale', 5, 7],
+598: ['Green Dragon Scale', 5, 8],
+599: ['Midnight Dragon Scale', 5, 9],
+600: ['Blue Dragon Scale', 5, 10],
+601: ['Red Dragon Scale', 5, 11]
 }
