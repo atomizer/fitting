@@ -382,13 +382,13 @@ $(function(){
 		init_stage();
 		statechanged(true);
 	})
-	$("#toggle-main, #toggle-accessory").change(function(){frame();allframe();});
+	$("#toggle-main, #toggle-accessory").change(function(){
+		frame();
+		allstageConditionalRedraw();
+	});
 	$("input[name='sort-dyes']").change(function(){replaceDyes(sortDyes());});
 	$("#toggle-allpreview").change(function(){
-		var checked = $(this).prop("checked");
-		if(checked){
-			allframe();
-		}
+		var checked = allstageConditionalRedraw();
 		$("#allstage").toggle(checked);
 	});
 	// url stuff
@@ -442,10 +442,7 @@ function newstate(replace) {
 function full_newstate(replace){
 	if (state_lock) return;
 	newstate(replace);
-	var allframeRedraw = $("#toggle-allpreview").is(":checked");
-	if(allframeRedraw){
-		allframe();
-	}
+	allstageConditionalRedraw();
 }
 
 function update_skins() {
@@ -617,4 +614,12 @@ function update_visuals() {
 	update_sel('clsel', cur_class)
 	update_sel('skinsel', cur_skin)
 	frame();
+}
+
+function allstageConditionalRedraw() {
+	var allframeRedraw = $("#toggle-allpreview").is(":checked");
+	if(allframeRedraw){
+		allframe();
+	}
+	return allframeRedraw;
 }
