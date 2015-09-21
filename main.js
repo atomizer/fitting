@@ -17,17 +17,6 @@ var walking = false, attacking = false, blushing = false;
 var d_wstart = Date.now(), d_bstart = d_wstart;
 var r_down = false;
 
-// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-window.requestAnimFrame = (function(){
-	return window.requestAnimationFrame    ||
-		window.webkitRequestAnimationFrame ||
-		window.mozRequestAnimationFrame    ||
-		window.oRequestAnimationFrame      ||
-		window.msRequestAnimationFrame     ||
-		function( callback ){
-			window.setTimeout(callback, 1000 / 60);
-		};
-})();
 
 function extract_sprites(ctx, sx, sy) {
 	sx = sx || 8;
@@ -315,7 +304,7 @@ function frame(id, scale) {
 	sctx.drawImage(bc, 0, 0, stage.width, stage.height);
 
 	if (walking || blushing) {
-		window.requestAnimFrame(function() {
+		window.requestAnimationFrame(function() {
 			ftimer = 0;
 			frame();
 		})
@@ -465,7 +454,6 @@ function init_stage() {
 	stage = $('#stage')[0]
 	sctx = stage.getContext('2d');
 	sctx.imageSmoothingEnabled = false;
-	sctx.webkitImageSmoothingEnabled = false;
 	sctx.mozImageSmoothingEnabled = false;
 	bc = document.createElement('canvas');
 	bctx = bc.getContext('2d');
