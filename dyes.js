@@ -229,5 +229,9 @@ var dyes = {
 598: ['Green Dragon Scale', 5, 8],
 599: ['Midnight Dragon Scale', 5, 9],
 600: ['Blue Dragon Scale', 5, 10],
-601: ['Red Dragon Scale', 5, 11]
+601: ['Red Dragon Scale', 5, 11],
+602: ['Jester Argyle', 10, 56],
+603: ['Alchemist', 10, 57],
+604: ['Spooky', 9, 14],
+605: ['Mosaic', 10, 58]
 }
