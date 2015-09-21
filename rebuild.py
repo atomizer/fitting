@@ -2,7 +2,7 @@
 # make sure Objects.xml is in the current directory
 # and appropriate PNG files are in ./sheets/
 
-import sys, re, os
+import sys, re, os, json
 from base64 import b64encode
 from glob import glob
 
@@ -70,3 +70,39 @@ for name in glob('*.png'):
     sh.append("{0}: 'data:image/png;base64,{1}'".format(name, b64encode(content)))
 
 out.write(',\n'.join(sh) + '\n}\n')
+
+
+# skins.js
+
+classes = {}
+skins = {}
+
+
+def getAnimTexture(tree):
+    return {
+        'file': tree.xpath('AnimatedTexture/File')[0].text,
+        'index': int(tree.xpath('AnimatedTexture/Index')[0].text, 0)
+    }
+
+os.chdir('..')
+
+for obj in objects.xpath('Object/Skin'):
+    obj = obj.getparent()
+    skdesc = getAnimTexture(obj)
+    skdesc['id'] = obj.get('id')
+    t = int(obj.xpath('PlayerClassType')[0].text, 0)
+    if (not t in skins):
+        skins[t] = []
+    skins[t].append(skdesc)
+
+for obj in objects.xpath('Object/Player'):
+    p = obj.getparent()
+    t = int(p.get('type'), 0)
+    tex = getAnimTexture(p)
+    tex['id'] = p.get('id')
+    tex['skins'] = skins[t]
+    classes[t] = tex
+
+out = open('skins.js', 'w')
+out.write('skins = ' + json.dumps(classes, separators=(',', ': '),
+                                  indent=2, sort_keys=True))
