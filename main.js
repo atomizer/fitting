@@ -209,7 +209,7 @@ function charImage(id, scale, direction, blush, char_class, char_skin){
 		c.save();
 		c.translate(1, 1); // 1px for border
 
-		var i = (char_skin !== -1) ? char_skin : skins[char_class][1];
+		var i = (char_skin !== -1) ? char_skin : skins[char_class].index;
 		i = i * 21 + id;
 		var sh = (char_skin !== -1) ? 'playersSkins' : 'players';
 		var spr = sprites[sh][i];
@@ -341,9 +341,9 @@ function allframe(scale){
 			y0,
 			w, 0, w, h
 		);
-		var skinsCount = skins[classIds[i]][2].length;
+		var skinsCount = skins[classIds[i]].skins.length;
 		for (var j = 0; j < skinsCount; j++){
-			currentChar = charImage(0, scale, 0, 0, classIds[i], skins[classIds[i]][2][j][1]);
+			currentChar = charImage(0, scale, 0, 0, classIds[i], skins[classIds[i]].skins[j].index);
 			w = currentChar.width / 3
 			h = currentChar.height;
 			c.putImageData(
@@ -390,15 +390,15 @@ $(function(){
 		}
 		cur_class = 782
 		for (var i in skins) {
-			if (skins[i][1] == m[0]) {
+			if (skins[i].index == m[0]) {
 				cur_class = i
 				break
 			}
 		}
-		var sarr = skins[cur_class][2]
+		var sarr = skins[cur_class].skins
 		cur_skin = -1
 		for (var j = 0; j < sarr.length; j++) {
-			if (sarr[j][1] == m[1]) {
+			if (sarr[j].index == m[1]) {
 				cur_skin = m[1]
 				break
 			}
@@ -417,7 +417,7 @@ function newstate(replace) {
 	update_visuals();
 	var url = document.location.pathname
 	var parts = []
-	parts.push(skins[cur_class][1].toString(36))
+	parts.push(skins[cur_class].index.toString(36))
 	parts.push(~cur_skin ? cur_skin.toString(36) : '')
 	parts.push(tx[0] == -1 ? '' : (+tx[0]).toString(36))
 	parts.push(tx[1] == -1 ? '' : (+tx[1]).toString(36))
@@ -443,10 +443,11 @@ function update_skins() {
 	var s = $('#skinsel')
 	s.find('div').remove()
 	s.append($('<div>').text('Classic').data('id', -1))
-	var sa = skins[cur_class][2]
+	var sa = skins[cur_class].skins
 	for (var i = 0; i < sa.length; i++) {
 		var t = sa[i]
-		s.append($('<div>').text(t[0]).data('id', t[1]))
+		if (t.file != 'playerskins') continue // fix pls?
+		s.append($('<div>').text(t.id).data('id', t.index))
 	}
 }
 
@@ -467,7 +468,7 @@ function init_stage() {
 	var allstageHeight = 0;
 	for (var obj in skins){
 		allstageWidth++;
-		allstageHeight = Math.max(allstageHeight, (skins[obj][2].length + 1));
+		allstageHeight = Math.max(allstageHeight, (skins[obj].skins.length + 1));
 	}
 	function charDimsToPixels(dimension){
 		return ((42 * dimension) + (6 * (dimension - 1)) + 16);
@@ -485,7 +486,7 @@ function init_stage() {
 	// classes
 	var clsel = $('#clsel');
 	for (var i in skins) {
-		$('<div/>').text(skins[i][0]).data('id', i).appendTo(clsel);
+		$('<div/>').text(skins[i].id).data('id', i).appendTo(clsel);
 	}
 	clsel.on('click', 'div', function() {
 		cur_class = +$(this).data('id');
@@ -555,14 +556,14 @@ function init_stage() {
 		dx = Math.floor((dx - 5) / 48)
 		dy = Math.floor((dy - 5) / 48)
 		for (var k in skins) {
-			if (skins[k][1] != dx) continue
+			if (skins[k].index != dx) continue
 			var sk = -1
 			if (dy > 0) {
-				sk = skins[k][2][dy - 1]
+				sk = skins[k].skins[dy - 1]
 				if (!sk) return
 			}
 			cur_class = k
-			cur_skin = dy ? sk[1] : -1
+			cur_skin = dy ? sk.index : -1
 			newstate()
 			return
 		}
