@@ -19,14 +19,16 @@ var r_down = false;
 
 
 function extract_sprites(ctx, sx, sy) {
-	sx = sx || 8;
-	sy = sy || sx;
-	var i = 0, r = [];
+	if (!sx) {
+		// if sheet width is divisible by 7, its an AnimatedTexture.
+		// NB: change this if there will ever be textile7x7
+		sx = ctx.canvas.width / ((ctx.canvas.width % 7 == 0) ? 7 : 16)
+	}
+	sy = sy || sx
+	var r = []
 	for (var y = 0; y < ctx.canvas.height; y += sy) {
 		for (var x = 0; x < ctx.canvas.width; x += sx) {
-			var ri = ctx.getImageData(x, y, sx, sy);
-			r[i] = ri;
-			i++;
+			r.push(ctx.getImageData(x, y, sx, sy))
 		}
 	}
 	return r
@@ -34,27 +36,23 @@ function extract_sprites(ctx, sx, sy) {
 
 function load_img(src, name, sz) {
 	var i = new Image()
-	var d = new $.Deferred()
-	i.onload = function() { d.resolve(this, name, sz) }
+	var d = new jQuery.Deferred()
+	i.onload = function() { d.resolve(this, sz ? sz : name) }
 	i.src = src
 	return d.promise()
 }
 
 function load_sheets() {
-	var d = new $.Deferred(), wait = 0
-	for (var s in sheets) wait++
+	var d = new jQuery.Deferred(), wait = 0
+	wait = Object.keys(sheets).length
 
-	function loaded(img, name, sz) {
+	function loaded(img, name) {
 		var c = document.createElement('canvas')
 		c.width = img.width;
 		c.height = img.height;
 		var ctx = c.getContext('2d')
 		ctx.drawImage(img, 0, 0)
-		if (!sz) {
-			sprites[name] = extract_sprites(ctx)
-		} else {
-			sprites[sz] = ctx
-		}
+		sprites[name] = extract_sprites(ctx)
 		if (!--wait) d.resolve()
 	}
 
@@ -91,11 +89,10 @@ function init_dyes() {
 			d[3] = d[2]
 		} else {
 			// cloth
-			var id = d[2]
-			var spr = sprites[sz].getImageData(sz * (id & 0xf), sz * (id >> 4), sz, sz)
+			var id = d[2];
 			ca.width = sz;
 			ca.height = sz;
-			cactx.putImageData(spr, 0, 0);
+			cactx.putImageData(sprites[sz][id], 0, 0);
 			d[3] = cactx.createPattern(ca, 'repeat');
 		}
 		var c = $('<div/>').addClass('dye');
