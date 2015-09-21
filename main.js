@@ -1,4 +1,4 @@
-/*global dyes, sheets, skins, History */
+/*global $, jQuery, dyes, sheets, skins, History */
 
 var DFRAMES = [[0, 1, 0, 4, 5], [7, 8, 9, 11, 12], [0, 1, 0, 4, 5], [14, 15, 16, 18, 19]];
 var DKEYS = [68, 83, 65, 87]; // dsaw
@@ -11,8 +11,8 @@ var cur_class = 0x030e, cur_skin = -1, cur_dir = 0, cur_frame = 0;
 var tx = [-1, -1];
 var zoom = 1;
 
-var BLUSH_PERIOD = 600
-var WALK_PERIOD = 300
+var BLUSH_PERIOD = 600;
+var WALK_PERIOD = 300;
 var walking = false, attacking = false, blushing = false;
 var d_wstart = Date.now(), d_bstart = d_wstart;
 var r_down = false;
@@ -40,7 +40,7 @@ function extract_sprites(ctx, sx, sy) {
 			i++;
 		}
 	}
-	return r;
+	return r
 }
 
 function load_img(src, name, sz) {
@@ -127,32 +127,32 @@ function init_dyes() {
 }
 
 function sortDyes(dyes) {
-	if(typeof(dyes)=="undefined"){
+	if (typeof dyes == 'undefined'){
 		dyes = $(".dye[style*='color']");
 	}
-	var sort = "";
+	var sort = '';
 	var sortTypes = $("input[name='sort-dyes']");
 	for (var i = 0; i < sortTypes.length; i++){
-		if(sortTypes[i].checked){
+		if (sortTypes[i].checked){
 			sort = sortTypes[i].id.substring(5);
 		}
 	}
-	dyes.sort(function(a,b){
-		if(a.length){
+	dyes.sort(function(a, b){
+		if (a.length){
 			a = a[0];
 			b = b[0];
 		}
-		if (sort == "name") {
+		if (sort == 'name') {
 			var aName = a.getAttribute('title')
 			var bName = b.getAttribute('title')
 			return (aName < bName) ? -1 : (aName > bName) ? 1 : 0;
 		}
 		var ca = jQuery.Color(a.style.backgroundColor)
 		var cb = jQuery.Color(b.style.backgroundColor)
-		if (sort == "lightness") {
+		if (sort == 'lightness') {
 			return (ca.lightness() - cb.lightness()) || (ca.hue() - cb.hue());
 		}
-		if (sort == "hue") {
+		if (sort == 'hue') {
 			return (ca.hue() - cb.hue()) || (ca.lightness() - cb.lightness());
 		}
 	})
@@ -162,7 +162,7 @@ function sortDyes(dyes) {
 
 function replaceDyes(newDyes){
 	$(".dye[style*='color']").remove();
-	$("#dyebox").append(newDyes);
+	$('#dyebox').append(newDyes);
 }
 
 
@@ -200,26 +200,26 @@ function charImage(id, scale, direction, blush, char_class, char_skin){
 	blush = blush || 0;
 	char_class = char_class || cur_class;
 	char_skin = typeof char_skin != 'undefined' ? char_skin : cur_skin;
-	
+
 	var temp = document.createElement('canvas');
 	temp.width = (scale * 8 + 2) * 3;
 	temp.height = scale * 8 + 2;
 	var c = temp.getContext('2d');
-	
+
 	c.save();
 	c.translate(42, 0);
 
 	var ischecked = [
-		$("#toggle-main").is(":checked"),
-		$("#toggle-accessory").is(":checked")
+		$('#toggle-main').is(':checked'),
+		$('#toggle-accessory').is(':checked')
 	]
-	
+
 	// draws using c with its current translation as the upper-left corner for the sprite
 	// needs x to be set before drawing (attacking sprites have offsets)
-	function pastesprite(id){
+	function pastesprite(id, x){
 		c.save();
 		c.translate(1, 1); // 1px for border
-		
+
 		var i = (char_skin !== -1) ? char_skin : skins[char_class][1];
 		i = i * 21 + id;
 		var sh = (char_skin !== -1) ? 'playersSkins' : 'players';
@@ -251,27 +251,27 @@ function charImage(id, scale, direction, blush, char_class, char_skin){
 				// outline
 				c.save();
 				c.globalCompositeOperation = 'destination-over';
-				c.strokeRect(x-0.5, y-0.5, scale+1, scale+1);
+				c.strokeRect(x - 0.5, y - 0.5, scale + 1, scale + 1);
 				c.restore();
 			}
 		}
 		c.restore();
 	}
-	x = (direction == 2) ? scale * 7 : 0;
-	pastesprite(id);
+	var x = (direction == 2) ? scale * 7 : 0;
+	pastesprite(id, x);
 	if (cur_frame == 4) { // attacking, frame 2
 		x = (direction == 2) ? -scale : scale * 8;
-		pastesprite(id + 1);
+		pastesprite(id + 1, x);
 	}
 	c.restore();
-	
+
 	// gradient + blush (had to do by hand because there's no actual "substract" blending, d'oh)
 	var d = c.getImageData(0, 0, c.canvas.width, c.canvas.height);
-	for (var x = 0; x < c.canvas.width; x++) {
+	for (x = 0; x < c.canvas.width; x++) {
 		for (var y = 0; y < c.canvas.height; y++) {
 			if (!p_comp(d, x, y, 3)) continue; // skip transparent
 			var pd = p_dict(d, x, y);
-			var gr = (y - 1) < (scale*3) ? 0 : (39 * (y - scale*3) / (scale*5));
+			var gr = (y - 1) < (scale * 3) ? 0 : (39 * (y - scale * 3) / (scale * 5));
 			pd[0] += blush - gr;
 			pd[1] -= blush + gr;
 			pd[2] -= blush + gr;
@@ -279,7 +279,7 @@ function charImage(id, scale, direction, blush, char_class, char_skin){
 		}
 	}
 	c.putImageData(d, 0, 0);
-	
+
 	return c.getImageData(0, 0, c.canvas.width, c.canvas.height);
 }
 
@@ -290,7 +290,7 @@ function frame(id, scale) {
 	ftimer = 1;
 	cur_frame = 0;
 	var blush = 0;
-	
+
 	if (walking || attacking) {
 		cur_frame = (Date.now() - d_wstart) % WALK_PERIOD;
 		cur_frame = (cur_frame / WALK_PERIOD < 0.5) ? 1 : 2;
@@ -301,18 +301,19 @@ function frame(id, scale) {
 		blush /= BLUSH_PERIOD;
 		blush = 127 * (1 - 2 * Math.abs(Math.asin(2 * blush - 1) / Math.PI));
 	}
-	
+
 	id = id || DFRAMES[cur_dir][cur_frame] || 0;
 	scale = scale || 5;
-	
+
 	var c = bctx;
 	c.clearRect(0, 0, bc.width, bc.height);
 	var image = charImage(id, scale, cur_dir, blush);
-	c.putImageData(image, bc.width/2 - image.width/2, bc.height/2 - image.height/2);
-	
+	c.putImageData(image, bc.width / 2 - image.width / 2,
+		bc.height / 2 - image.height / 2);
+
 	sctx.clearRect(0, 0, stage.width, stage.height);
 	sctx.drawImage(bc, 0, 0, stage.width, stage.height);
-	
+
 	if (walking || blushing) {
 		window.requestAnimFrame(function() {
 			ftimer = 0;
@@ -325,18 +326,18 @@ function frame(id, scale) {
 
 function allframe(scale){
 	scale = scale || 5;
-	
+
 	var c = abctx;
 	c.clearRect(0, 0, c.canvas.width, c.canvas.height);
-	
+
 	// get sorted list of class IDs
 	var classIds = [];
 	for (var obj in skins) {
 		classIds.push(obj);
 	}
-	classIds.sort(function(a,b){return a-b});
+	classIds.sort(function(a, b){return a - b});
 	var classesCount = classIds.length;
-	
+
 	// create sprites for each class and skin
 	var currentChar;
 	var x0 = 8, y0 = 8;
@@ -344,7 +345,7 @@ function allframe(scale){
 	c.globalCompositeOperation = 'destination-over';
 	for (var i = 0; i < classesCount; i++){
 		currentChar = charImage(0, scale, 0, 0, classIds[i], -1);
-		var w = currentChar.width/3, h = currentChar.height;
+		var w = currentChar.width / 3, h = currentChar.height;
 		c.putImageData(
 			currentChar,
 			((w * (i - 1)) + (i * 6)) + x0,
@@ -354,7 +355,7 @@ function allframe(scale){
 		var skinsCount = skins[classIds[i]][2].length;
 		for (var j = 0; j < skinsCount; j++){
 			currentChar = charImage(0, scale, 0, 0, classIds[i], skins[classIds[i]][2][j][1]);
-			w = currentChar.width/3
+			w = currentChar.width / 3
 			h = currentChar.height;
 			c.putImageData(
 				currentChar,
@@ -365,11 +366,10 @@ function allframe(scale){
 		}
 	}
 	c.restore();
-	
+
 	asctx.clearRect(0, 0, allstage.width, allstage.height);
 	asctx.drawImage(abc, 0, 0, allstage.width, allstage.height);
 }
-
 
 
 // action
@@ -382,14 +382,14 @@ $(function(){
 		init_stage();
 		statechanged(true);
 	})
-	$("#toggle-main, #toggle-accessory").change(function(){frame();allframe();});
-	$("input[name='sort-dyes']").change(function(){replaceDyes(sortDyes());});
-	$("#toggle-allpreview").change(function(){
-		var checked = $(this).prop("checked");
-		if(checked){
+	$('#toggle-main, #toggle-accessory').change(function(){frame(); allframe()});
+	$("input[name='sort-dyes']").change(function(){replaceDyes(sortDyes())});
+	$('#toggle-allpreview').change(function(){
+		var checked = $(this).prop('checked');
+		if (checked){
 			allframe();
 		}
-		$("#allstage").toggle(checked);
+		$('#allstage').toggle(checked);
 	});
 	// url stuff
 	function statechanged(replace) {
@@ -433,8 +433,10 @@ function newstate(replace) {
 	parts.push(tx[0] == -1 ? '' : (+tx[0]).toString(36))
 	parts.push(tx[1] == -1 ? '' : (+tx[1]).toString(36))
 	parts = parts.join('.')
-	if (parts != '2...') url += '?' + parts
-	;(replace ? History.replaceState : History.pushState)(null, document.title, url);
+	if (parts != '2...') {
+		url += '?' + parts
+	}
+	(replace ? History.replaceState : History.pushState)(null, document.title, url);
 	state_lock = false;
 }
 
@@ -442,8 +444,8 @@ function newstate(replace) {
 function full_newstate(replace){
 	if (state_lock) return;
 	newstate(replace);
-	var allframeRedraw = $("#toggle-allpreview").is(":checked");
-	if(allframeRedraw){
+	var allframeRedraw = $('#toggle-allpreview').is(':checked');
+	if (allframeRedraw){
 		allframe();
 	}
 }
@@ -468,14 +470,14 @@ function init_stage() {
 	bc = document.createElement('canvas');
 	bctx = bc.getContext('2d');
 	bc.width = bc.height = stage.width / zoom;
-	
+
 	allstage = $('#allstage')[0]
 	asctx = allstage.getContext('2d');
 
 	// set width + height based on number of classes/skins
 	var allstageWidth = 0;
 	var allstageHeight = 0;
-	for(var obj in skins){
+	for (var obj in skins){
 		allstageWidth++;
 		allstageHeight = Math.max(allstageHeight, (skins[obj][2].length + 1));
 	}
@@ -484,7 +486,7 @@ function init_stage() {
 	}
 	allstage.width = allstageWidth = charDimsToPixels(allstageWidth);
 	allstage.height = allstageHeight = charDimsToPixels(allstageHeight);
-	
+
 	abc = document.createElement('canvas');
 	abctx = abc.getContext('2d');
 	abc.width = allstage.width;
